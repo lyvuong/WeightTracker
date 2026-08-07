@@ -1,0 +1,64 @@
+{
+  "short_name": "WeightTracker",
+  "name": "WeightTracker - Household Weight & Body Trends",
+  "description": "Progressive Web App for logging daily weigh-ins for everyone in the household, with BMI, goals and trend charts shared in real time.",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#020617",
+  "theme_color": "#8b5cf6",
+  "display": "standalone",
+  "orientation": "any",
+  "categories": ["health", "fitness", "lifestyle", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Weigh In",
+      "short_name": "Weigh",
+      "description": "Log today's weight",
+      "url": "/?action=weigh",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Weight Log",
+      "short_name": "Log",
+      "description": "Browse the household weight log",
+      "url": "/?action=log",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192" }]
+    }
+  ]
+}

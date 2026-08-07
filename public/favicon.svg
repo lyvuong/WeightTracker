@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+  </defs>
+
+  <!-- Rounded app tile -->
+  <rect width="512" height="512" rx="116" fill="url(#bg)" />
+
+  <!-- Bathroom scale body, seen from above -->
+  <rect x="116" y="116" width="280" height="280" rx="56" fill="#ffffff" />
+
+  <!-- Display window -->
+  <rect x="186" y="168" width="140" height="92" rx="24" fill="#ddd6fe" />
+
+  <!-- Dial arc + needle inside the window -->
+  <path d="M 216 232 A 40 40 0 0 1 296 232 L 284 232 A 28 28 0 0 0 228 232 Z" fill="#7c3aed" />
+  <path d="M 253 234 L 259 234 L 240 200 Z" fill="#7c3aed" />
+
+  <!-- Foot pads -->
+  <rect x="156" y="296" width="88" height="76" rx="22" fill="#ddd6fe" />
+  <rect x="268" y="296" width="88" height="76" rx="22" fill="#ddd6fe" />
+</svg>
