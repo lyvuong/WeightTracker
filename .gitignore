@@ -27,3 +27,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+scripts/DailyWeights.csv
+scripts/pwa-experiment-291c0-firebase-adminsdk-fbsvc-2695a477d5.json
+scripts/*serviceAccount*.json
+scripts/*firebase-adminsdk*.json
+scripts/.migration-manifest-*.json
