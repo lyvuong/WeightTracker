@@ -74,10 +74,10 @@ export interface BmiBand {
  * birthDate and renders the number without a band in that case.
  */
 export const bmiBand = (bmi: number): BmiBand => {
-  if (bmi < 18.5) return { label: 'Underweight', chip: 'bg-sky-500/15 border-sky-500/30 text-sky-300' };
-  if (bmi < 25) return { label: 'Healthy', chip: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300' };
-  if (bmi < 30) return { label: 'Overweight', chip: 'bg-amber-500/15 border-amber-500/30 text-amber-300' };
-  return { label: 'Obese', chip: 'bg-rose-500/15 border-rose-500/30 text-rose-300' };
+  if (bmi < 18.5) return { label: 'Underweight', chip: 'bg-sky-50 border-sky-200 text-sky-700' };
+  if (bmi < 25) return { label: 'Healthy', chip: 'bg-emerald-50 border-emerald-200 text-emerald-700' };
+  if (bmi < 30) return { label: 'Overweight', chip: 'bg-amber-50 border-amber-200 text-amber-700' };
+  return { label: 'Obese', chip: 'bg-rose-50 border-rose-200 text-rose-700' };
 };
 
 /** Age in whole years, or null when no birth date is on file. */

@@ -34,13 +34,14 @@ const RANGES: { value: TrendRange; label: string }[] = [
   { value: 0, label: 'All' }
 ];
 
-const AXIS = { stroke: '#94a3b8', tick: { fill: '#94a3b8', fontSize: 12 } };
+const AXIS = { stroke: '#94a3b8', tick: { fill: '#64748b', fontSize: 12 } };
 const TOOLTIP_STYLE = {
-  backgroundColor: '#0f172a',
-  borderColor: '#334155',
+  backgroundColor: '#ffffff',
+  borderColor: '#e2e8f0',
   borderRadius: '12px',
-  color: '#fff',
-  fontSize: 12
+  color: '#0f172a',
+  fontSize: 12,
+  boxShadow: '0 4px 16px -4px rgba(15,23,42,0.15)'
 };
 
 /** ISO-ish week key (Monday start) used to bucket the weekly change chart. */
@@ -176,15 +177,15 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
   const chip = (isActive: boolean) =>
     `px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap ${
       isActive
-        ? 'bg-violet-500/15 text-violet-300 border-violet-500/30'
-        : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
+        ? 'bg-violet-50 text-violet-700 border-violet-200'
+        : 'bg-white text-slate-500 border-slate-200 hover:text-slate-800'
     }`;
 
   if (people.length === 0 || entries.length === 0) {
     return (
       <div className="glass-panel p-10 rounded-3xl text-center">
-        <p className="text-sm font-bold text-white">Nothing to chart yet</p>
-        <p className="text-xs text-slate-400 mt-1">Log a few weigh-ins and trends will appear here.</p>
+        <p className="text-sm font-bold text-slate-900">Nothing to chart yet</p>
+        <p className="text-xs text-slate-500 mt-1">Log a few weigh-ins and trends will appear here.</p>
       </div>
     );
   }
@@ -193,12 +194,12 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
     <div className="space-y-5">
       <div className="glass-panel p-5 rounded-3xl space-y-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-violet-500/10 text-violet-400 rounded-xl border border-violet-500/20">
+          <div className="p-2 bg-violet-50 text-violet-600 rounded-xl border border-violet-200">
             <TrendingUp className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-lg font-black text-white font-display">Trends</h1>
-            <p className="text-[11px] text-slate-400">
+            <h1 className="text-lg font-black text-slate-900 font-display">Trends</h1>
+            <p className="text-[11px] text-slate-500">
               Daily weight swings of a pound or two are normal — the dashed 7-point average is the line to watch.
             </p>
           </div>
@@ -221,17 +222,17 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
                 key={p.id}
                 onClick={() => toggle(p.id)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap ${
-                  isVisible ? color.chip : 'bg-slate-900/60 text-slate-500 border-slate-800'
+                  isVisible ? color.chip : 'bg-white text-slate-400 border-slate-200'
                 }`}
               >
-                <span className={`w-2 h-2 rounded-full ${isVisible ? color.dot : 'bg-slate-600'}`} />
+                <span className={`w-2 h-2 rounded-full ${isVisible ? color.dot : 'bg-slate-300'}`} />
                 {p.name}
               </button>
             );
           })}
         </div>
 
-        <label className="flex items-center gap-2 text-xs font-semibold text-slate-300 cursor-pointer w-fit">
+        <label className="flex items-center gap-2 text-xs font-semibold text-slate-600 cursor-pointer w-fit">
           <input
             type="checkbox"
             checked={showAverage}
@@ -244,25 +245,25 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
 
       {/* Weight over time */}
       <section className="glass-panel p-5 rounded-3xl space-y-3">
-        <h2 className="text-sm font-bold text-white">Weight over time ({unit})</h2>
+        <h2 className="text-sm font-bold text-slate-900">Weight over time ({unit})</h2>
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis dataKey="date" {...AXIS} minTickGap={24} />
               <YAxis domain={yDomain} {...AXIS} width={52} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
                 formatter={(value: any, name: any) => [`${Number(value).toFixed(1)} ${unit}`, String(name)]}
               />
-              <Legend wrapperStyle={{ fontSize: 12, color: '#94a3b8' }} />
+              <Legend wrapperStyle={{ fontSize: 12, color: '#64748b' }} />
 
               {soloPerson?.goalWeightKg && (
                 <ReferenceLine
                   y={fromKg(soloPerson.goalWeightKg, unit)}
                   stroke={getPersonColor(soloPerson.color).hex}
                   strokeDasharray="6 4"
-                  label={{ value: 'Goal', fill: '#94a3b8', fontSize: 11, position: 'right' }}
+                  label={{ value: 'Goal', fill: '#64748b', fontSize: 11, position: 'right' }}
                 />
               )}
 
@@ -296,7 +297,7 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
           </ResponsiveContainer>
         </div>
         {visible.length > 1 && people.some(p => p.goalWeightKg) && (
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-slate-400">
             Goal lines are shown when a single person is selected — several dashed goals at once are unreadable. Goal progress for everyone is on the Dashboard.
           </p>
         )}
@@ -305,23 +306,23 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
       {/* Weekly net change, single person only */}
       {soloPerson && weeklyData.length > 1 && (
         <section className="glass-panel p-5 rounded-3xl space-y-3">
-          <h2 className="text-sm font-bold text-white">
+          <h2 className="text-sm font-bold text-slate-900">
             Weekly change · {soloPerson.name} ({unit})
           </h2>
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis dataKey="week" {...AXIS} minTickGap={16} />
                 <YAxis {...AXIS} width={52} />
                 <Tooltip
                   contentStyle={TOOLTIP_STYLE}
                   formatter={(value: any) => [`${Number(value) > 0 ? '+' : ''}${Number(value).toFixed(1)} ${unit}`, 'Change']}
                 />
-                <ReferenceLine y={0} stroke="#475569" />
+                <ReferenceLine y={0} stroke="#cbd5e1" />
                 <Bar dataKey="change" radius={[4, 4, 4, 4]}>
                   {weeklyData.map((d, i) => (
-                    <Cell key={i} fill={d.change <= 0 ? '#34d399' : '#fbbf24'} />
+                    <Cell key={i} fill={d.change <= 0 ? '#059669' : '#d97706'} />
                   ))}
                 </Bar>
               </BarChart>
@@ -333,11 +334,11 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
       {/* Body fat, only when anyone actually records it */}
       {hasBodyFat && bodyFatData.length > 1 && (
         <section className="glass-panel p-5 rounded-3xl space-y-3">
-          <h2 className="text-sm font-bold text-white">Body fat (%)</h2>
+          <h2 className="text-sm font-bold text-slate-900">Body fat (%)</h2>
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={bodyFatData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis dataKey="date" {...AXIS} minTickGap={24} />
                 <YAxis domain={['dataMin - 2', 'dataMax + 2']} {...AXIS} width={52} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, n: any) => [`${v}%`, String(n)]} />

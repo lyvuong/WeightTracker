@@ -101,20 +101,20 @@ export const PersonModal: React.FC<PersonModalProps> = ({
     });
   };
 
-  const field = 'w-full glass-input text-sm text-white px-3 py-2.5 rounded-xl placeholder:text-slate-600';
-  const label = 'text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider';
+  const field = 'w-full glass-input text-sm px-3 py-2.5 rounded-xl';
+  const label = 'text-[11px] font-bold text-slate-500 block mb-1.5 uppercase tracking-wider';
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
       <form
         onSubmit={handleSubmit}
-        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-800 shadow-2xl bg-slate-900/95 p-6 space-y-5 my-auto"
+        className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-200 shadow-2xl bg-white p-6 space-y-5 my-auto"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black text-white font-display">
+          <h2 className="text-lg font-black text-slate-900 font-display">
             {initialPerson ? `Edit ${initialPerson.name}` : 'Add a person'}
           </h2>
-          <button type="button" onClick={onClose} className="p-2 text-slate-400 hover:text-white" aria-label="Close">
+          <button type="button" onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -141,8 +141,8 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                 onClick={() => setEmoji(em)}
                 className={`aspect-square rounded-lg text-lg flex items-center justify-center border transition-all ${
                   emoji === em
-                    ? 'bg-violet-500/20 border-violet-500/60 scale-110'
-                    : 'bg-slate-900/60 border-slate-800 hover:border-slate-600'
+                    ? 'bg-violet-100 border-violet-400 scale-110'
+                    : 'bg-slate-50 border-slate-200 hover:border-slate-300'
                 }`}
               >
                 {em}
@@ -161,7 +161,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
                 onClick={() => setColor(key)}
                 title={key}
                 className={`w-8 h-8 rounded-full ${PERSON_COLORS[key].bar} transition-all ${
-                  color === key ? 'ring-2 ring-offset-2 ring-offset-slate-900 ring-white scale-110' : 'opacity-70 hover:opacity-100'
+                  color === key ? 'ring-2 ring-offset-2 ring-offset-white ring-slate-900 scale-110' : 'opacity-70 hover:opacity-100'
                 }`}
               />
             ))}
@@ -223,7 +223,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             onChange={(e) => setBirthDate(e.target.value)}
             className={field}
           />
-          <p className="text-[11px] text-slate-500 mt-1.5">
+          <p className="text-[11px] text-slate-400 mt-1.5">
             Only used to hide the adult BMI category for anyone under 20, where it doesn't apply.
           </p>
         </div>
@@ -233,7 +233,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
             <button
               type="button"
               onClick={() => onDelete(initialPerson.id)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-red-950 text-red-400 text-xs font-bold px-4 py-3 rounded-xl border border-slate-700 hover:border-red-800 transition-all"
+              className="flex items-center gap-1.5 bg-slate-100 hover:bg-red-50 text-red-600 text-xs font-bold px-4 py-3 rounded-xl border border-slate-200 hover:border-red-300 transition-all"
             >
               <Trash2 className="w-4 h-4" />
               Delete
@@ -242,7 +242,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
           <button
             type="submit"
             disabled={!name.trim()}
-            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-fuchsia-600 hover:from-violet-400 hover:to-fuchsia-500 text-white font-bold text-sm py-3 rounded-xl shadow-lg shadow-violet-500/20 transition-all disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-sm py-3 rounded-xl shadow-md shadow-violet-500/20 transition-all disabled:opacity-40"
           >
             <Save className="w-4 h-4" />
             Save person

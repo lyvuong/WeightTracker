@@ -59,8 +59,8 @@ export const WeightHistory: React.FC<WeightHistoryProps> = ({
   const chip = (isActive: boolean) =>
     `px-3 py-1.5 rounded-xl text-xs font-bold border transition-all whitespace-nowrap ${
       isActive
-        ? 'bg-violet-500/15 text-violet-300 border-violet-500/30'
-        : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200'
+        ? 'bg-violet-50 text-violet-700 border-violet-200'
+        : 'bg-white text-slate-500 border-slate-200 hover:text-slate-800'
     }`;
 
   return (
@@ -68,12 +68,12 @@ export const WeightHistory: React.FC<WeightHistoryProps> = ({
       <div className="glass-panel p-5 rounded-3xl space-y-4">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-violet-500/10 text-violet-400 rounded-xl border border-violet-500/20">
+            <div className="p-2 bg-violet-50 text-violet-600 rounded-xl border border-violet-200">
               <ListOrdered className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="text-lg font-black text-white font-display">Weight log</h1>
-              <p className="text-[11px] text-slate-400">
+              <h1 className="text-lg font-black text-slate-900 font-display">Weight log</h1>
+              <p className="text-[11px] text-slate-500">
                 {filtered.length} weigh-in{filtered.length === 1 ? '' : 's'} shown
               </p>
             </div>
@@ -82,14 +82,14 @@ export const WeightHistory: React.FC<WeightHistoryProps> = ({
           <div className="flex items-center gap-2">
             <button
               onClick={() => onExportCSV(filtered)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-700 transition-all"
+              className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-3.5 py-2 rounded-xl border border-slate-200 transition-all"
             >
-              <Download className="w-4 h-4 text-violet-400" />
+              <Download className="w-4 h-4 text-violet-600" />
               Export CSV
             </button>
             <button
               onClick={onAddEntry}
-              className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-lg shadow-violet-600/20 transition-all"
+              className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-md shadow-violet-600/20 transition-all"
             >
               <Plus className="w-4 h-4" />
               Add
@@ -119,55 +119,55 @@ export const WeightHistory: React.FC<WeightHistoryProps> = ({
 
       {grouped.length === 0 ? (
         <div className="glass-panel p-10 rounded-3xl text-center">
-          <p className="text-sm font-bold text-white">No weigh-ins in this range</p>
-          <p className="text-xs text-slate-400 mt-1">Widen the date range or log a new entry.</p>
+          <p className="text-sm font-bold text-slate-900">No weigh-ins in this range</p>
+          <p className="text-xs text-slate-500 mt-1">Widen the date range or log a new entry.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {grouped.map(([date, dayEntries]) => (
             <section key={date} className="glass-panel rounded-3xl overflow-hidden">
-              <header className="px-5 py-3 bg-slate-900/60 border-b border-slate-800">
-                <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-400">
+              <header className="px-5 py-3 bg-slate-50 border-b border-slate-200">
+                <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                   {formatLongDate(date)}
                 </h2>
               </header>
 
-              <ul className="divide-y divide-slate-800/70">
+              <ul className="divide-y divide-slate-100">
                 {dayEntries.map((e) => (
                   <li key={e.id}>
                     <button
                       onClick={() => onEditEntry(e)}
-                      className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-slate-800/40 transition-colors"
+                      className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-slate-50 transition-colors"
                     >
                       {e.person ? (
                         <PersonAvatar person={e.person} size="sm" />
                       ) : (
-                        <span className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 text-xs">?</span>
+                        <span className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 text-xs">?</span>
                       )}
 
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-white truncate">
+                        <p className="text-sm font-bold text-slate-900 truncate">
                           {e.person?.name || 'Unknown person'}
-                          <span className="ml-2 text-[11px] font-normal text-slate-500 font-mono">{e.time}</span>
+                          <span className="ml-2 text-[11px] font-normal text-slate-400 font-mono">{e.time}</span>
                         </p>
-                        <p className="text-[11px] text-slate-400 truncate">
+                        <p className="text-[11px] text-slate-500 truncate">
                           {e.bmi !== null && <span className="mr-2">BMI {e.bmi}</span>}
                           {e.bodyFatPct !== undefined && <span className="mr-2">{e.bodyFatPct}% fat</span>}
                           {e.notes && <span className="italic">{e.notes}</span>}
                           {!e.notes && e.lastEditedBy && (
-                            <span className="text-slate-600">edited by {e.lastEditedBy.displayName}</span>
+                            <span className="text-slate-400">edited by {e.lastEditedBy.displayName}</span>
                           )}
                         </p>
                       </div>
 
                       <div className="text-right shrink-0">
-                        <p className="text-base font-black font-mono text-white leading-tight">
+                        <p className="text-base font-black font-mono text-slate-900 leading-tight">
                           {formatWeight(e.weightKg, unit, false)}
-                          <span className="text-[10px] font-bold text-slate-500 ml-1">{unit}</span>
+                          <span className="text-[10px] font-bold text-slate-400 ml-1">{unit}</span>
                         </p>
                         {e.deltaFromPreviousKg !== null && Math.abs(e.deltaFromPreviousKg) > 0.005 && (
                           <p className={`text-[11px] font-semibold flex items-center justify-end gap-0.5 ${
-                            e.deltaFromPreviousKg < 0 ? 'text-emerald-400' : 'text-amber-400'
+                            e.deltaFromPreviousKg < 0 ? 'text-emerald-600' : 'text-amber-600'
                           }`}>
                             {e.deltaFromPreviousKg < 0 ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
                             {formatDelta(e.deltaFromPreviousKg, unit).replace(/^[+−]/, '')}
@@ -175,7 +175,7 @@ export const WeightHistory: React.FC<WeightHistoryProps> = ({
                         )}
                       </div>
 
-                      <Pencil className="w-4 h-4 text-slate-600 shrink-0" />
+                      <Pencil className="w-4 h-4 text-slate-300 shrink-0" />
                     </button>
                   </li>
                 ))}

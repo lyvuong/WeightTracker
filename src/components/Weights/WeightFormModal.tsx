@@ -76,20 +76,20 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
     });
   };
 
-  const field = 'w-full glass-input text-sm text-white px-3 py-2.5 rounded-xl placeholder:text-slate-600';
-  const label = 'text-[11px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider';
+  const field = 'w-full glass-input text-sm px-3 py-2.5 rounded-xl';
+  const label = 'text-[11px] font-bold text-slate-500 block mb-1.5 uppercase tracking-wider';
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
       <form
         onSubmit={handleSubmit}
-        className="glass-panel w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-800 shadow-2xl bg-slate-900/95 p-6 space-y-5"
+        className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-200 shadow-2xl bg-white p-6 space-y-5"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-black text-white font-display">
+          <h2 className="text-lg font-black text-slate-900 font-display">
             {initialEntry ? 'Edit weigh-in' : 'Log a weigh-in'}
           </h2>
-          <button type="button" onClick={onClose} className="p-2 text-slate-400 hover:text-white" aria-label="Close">
+          <button type="button" onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -102,7 +102,7 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
             className={field}
           >
             {people.map(p => (
-              <option key={p.id} value={p.id} className="bg-slate-900">
+              <option key={p.id} value={p.id} className="bg-white">
                 {p.emoji} {p.name}
               </option>
             ))}
@@ -166,7 +166,7 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
             <button
               type="button"
               onClick={() => onDelete(initialEntry.id)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-red-950 text-red-400 text-xs font-bold px-4 py-3 rounded-xl border border-slate-700 hover:border-red-800 transition-all"
+              className="flex items-center gap-1.5 bg-slate-100 hover:bg-red-50 text-red-600 text-xs font-bold px-4 py-3 rounded-xl border border-slate-200 hover:border-red-300 transition-all"
             >
               <Trash2 className="w-4 h-4" />
               Delete
@@ -175,7 +175,7 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
           <button
             type="submit"
             disabled={!isValid}
-            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-500 to-fuchsia-600 hover:from-violet-400 hover:to-fuchsia-500 text-white font-bold text-sm py-3 rounded-xl shadow-lg shadow-violet-500/20 transition-all disabled:opacity-40"
+            className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-sm py-3 rounded-xl shadow-md shadow-violet-500/20 transition-all disabled:opacity-40"
           >
             <Save className="w-4 h-4" />
             Save

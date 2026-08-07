@@ -479,9 +479,9 @@ export const App: React.FC = () => {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-sm text-slate-400">
-          <div className="w-10 h-10 border-4 border-violet-500/30 border-t-violet-400 rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-sm text-slate-500">
+          <div className="w-10 h-10 border-4 border-violet-200 border-t-violet-600 rounded-full animate-spin" />
           <span>Authenticating WeightTracker session…</span>
         </div>
       </div>
@@ -493,7 +493,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans pb-24 lg:pb-0">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans pb-24 lg:pb-0">
       <Navbar
         people={sortedPeople}
         activePersonId={activePersonId}
@@ -656,7 +656,7 @@ export const App: React.FC = () => {
 
       <PWAInstallPrompt />
 
-      <footer className="hidden lg:block border-t border-slate-800 bg-slate-900/50 py-5 text-center text-xs text-slate-600 no-print">
+      <footer className="hidden lg:block border-t border-slate-200 bg-white/60 py-5 text-center text-xs text-slate-400 no-print">
         <p>WeightTracker · shared household weigh-ins · Cloudflare Pages ready · offline capable</p>
       </footer>
     </div>
