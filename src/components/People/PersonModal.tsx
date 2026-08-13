@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { X, Save, Trash2 } from 'lucide-react';
-import type { Person, WeightUnit } from '../../types';
+import type { Person, UserAuditInfo, WeightUnit } from '../../types';
 import { COLOR_KEYS, PERSON_COLORS, PERSON_EMOJIS, DEFAULT_EMOJI, nextColorKey } from '../../constants/people';
 import { cmToFeetInches, feetInchesToCm, fromKg, toKg } from '../../utils/units';
+import { namesMatch } from '../../utils/weights';
 
 interface PersonModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface PersonModalProps {
   peopleCount: number;
   prefillName?: string;
   prefillUid?: string;
+  householdMembers?: UserAuditInfo[];
   onSave: (person: Person) => void;
   onDelete: (id: string) => void;
   onClose: () => void;
@@ -23,6 +25,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
   peopleCount,
   prefillName,
   prefillUid,
+  householdMembers = [],
   onSave,
   onDelete,
   onClose
@@ -35,6 +38,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
   const [heightCm, setHeightCm] = useState('');
   const [goal, setGoal] = useState('');
   const [birthDate, setBirthDate] = useState('');
+  const [linkedUid, setLinkedUid] = useState('');
 
   useEffect(() => {
     if (!isOpen) return;
@@ -44,6 +48,7 @@ export const PersonModal: React.FC<PersonModalProps> = ({
       setColor(initialPerson.color || 'violet');
       setBirthDate(initialPerson.birthDate || '');
       setGoal(initialPerson.goalWeightKg ? String(fromKg(initialPerson.goalWeightKg, unit)) : '');
+      setLinkedUid(initialPerson.linkedUid || prefillUid || '');
       if (initialPerson.heightCm) {
         const { feet: f, inches: i } = cmToFeetInches(initialPerson.heightCm);
         setFeet(String(f));
@@ -63,8 +68,9 @@ export const PersonModal: React.FC<PersonModalProps> = ({
       setHeightCm('');
       setGoal('');
       setBirthDate('');
+      setLinkedUid(prefillUid || '');
     }
-  }, [isOpen, initialPerson, prefillName, peopleCount, unit]);
+  }, [isOpen, initialPerson, prefillName, prefillUid, peopleCount, unit]);
 
   if (!isOpen) return null;
 
@@ -84,15 +90,21 @@ export const PersonModal: React.FC<PersonModalProps> = ({
     if (!name.trim()) return;
     const now = new Date().toISOString();
     const goalNum = Number(goal);
+    const resolvedLinkedUid =
+      linkedUid ||
+      initialPerson?.linkedUid ||
+      prefillUid ||
+      householdMembers.find(m => namesMatch(name.trim(), m.displayName))?.uid;
+
     onSave({
-      id: initialPerson?.id || (prefillUid ? `person-uid-${prefillUid}` : `person-${Date.now()}`),
+      id: initialPerson?.id || (resolvedLinkedUid ? `person-uid-${resolvedLinkedUid}` : `person-${Date.now()}`),
       name: name.trim(),
       emoji,
       color,
       heightCm: resolveHeightCm(),
       goalWeightKg: goal.trim() !== '' && Number.isFinite(goalNum) && goalNum > 0 ? toKg(goalNum, unit) : undefined,
       birthDate: birthDate || undefined,
-      linkedUid: initialPerson?.linkedUid || prefillUid,
+      linkedUid: resolvedLinkedUid,
       sortOrder: initialPerson?.sortOrder ?? peopleCount,
       isArchived: initialPerson?.isArchived,
       createdAt: initialPerson?.createdAt || now,

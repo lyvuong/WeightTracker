@@ -645,6 +645,7 @@ export const App: React.FC = () => {
         peopleCount={people.length}
         prefillName={personPrefill?.displayName}
         prefillUid={personPrefill?.uid}
+        householdMembers={householdMembers}
         onSave={handleSavePerson}
         onDelete={handleDeletePerson}
         onClose={() => {

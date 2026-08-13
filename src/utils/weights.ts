@@ -21,6 +21,24 @@ export const sortPeople = (people: Person[]): Person[] =>
     return a.name.localeCompare(b.name);
   });
 
+/** Flexible name matching for household accounts (e.g. "Quoc-Huan Vuong" vs "Huan Vuong"). */
+export const namesMatch = (nameA: string = '', nameB: string = ''): boolean => {
+  const normA = nameA.toLowerCase().replace(/[^a-z0-9]/g, ' ').trim();
+  const normB = nameB.toLowerCase().replace(/[^a-z0-9]/g, ' ').trim();
+  if (!normA || !normB) return false;
+  if (normA === normB) return true;
+  if (normA.includes(normB) || normB.includes(normA)) return true;
+
+  const tokensA = normA.split(/\s+/).filter(Boolean);
+  const tokensB = normB.split(/\s+/).filter(Boolean);
+  const common = tokensA.filter(t => tokensB.includes(t));
+  return (
+    common.length >= Math.min(tokensA.length, tokensB.length) ||
+    common.length >= 2 ||
+    (common.length > 0 && common.length / Math.min(tokensA.length, tokensB.length) >= 0.5)
+  );
+};
+
 export const daysBetween = (fromDate: string, toDate: string): number => {
   const a = new Date(`${fromDate}T00:00:00`).getTime();
   const b = new Date(`${toDate}T00:00:00`).getTime();
