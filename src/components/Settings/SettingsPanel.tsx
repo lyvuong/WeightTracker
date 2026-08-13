@@ -93,6 +93,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     }
   };
 
+  const [authErrorMsg, setAuthErrorMsg] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false);
+
+  const handleGoogleSignIn = async () => {
+    setAuthErrorMsg('');
+    if (!isFirebaseActive) {
+      setAuthErrorMsg('⚠️ Firebase is not configured yet. Please expand "Advanced Settings" below to enter your Firebase credentials or add a .env file.');
+      setIsAdvancedUnlocked(true);
+      return;
+    }
+    setIsSigningIn(true);
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      console.error('Google Sign-in error:', err);
+      setAuthErrorMsg(err?.message || 'Google sign-in failed. Please try again.');
+    } finally {
+      setIsSigningIn(false);
+    }
+  };
+
   const handleSaveFirebaseConfig = (e: React.FormEvent) => {
     e.preventDefault();
     setStoredFirebaseConfig(customConfig);
@@ -185,12 +206,23 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               Sign in with Google to enable cloud backups, cross-device sync, and shared household weigh-ins.
             </p>
             <button
-              onClick={() => loginWithGoogle()}
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md shadow-violet-500/20 transition-all"
+              onClick={handleGoogleSignIn}
+              disabled={isSigningIn}
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md shadow-violet-500/20 transition-all disabled:opacity-50"
             >
-              <Cloud className="w-4 h-4" />
-              Sign in with Google
+              {isSigningIn ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <Cloud className="w-4 h-4" />
+              )}
+              <span>{isSigningIn ? 'Connecting...' : 'Sign in with Google'}</span>
             </button>
+
+            {authErrorMsg && (
+              <div className="p-3 bg-amber-50 border border-amber-200 text-amber-800 text-xs rounded-xl text-left font-medium mt-2 leading-relaxed">
+                {authErrorMsg}
+              </div>
+            )}
           </div>
         )}
       </div>

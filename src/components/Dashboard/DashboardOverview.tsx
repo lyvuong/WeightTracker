@@ -1,12 +1,11 @@
 import React from 'react';
 import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip, XAxis } from 'recharts';
-import { Users, ListOrdered, Flame, Target, UserPlus, ArrowDown, ArrowUp } from 'lucide-react';
+import { Users, ListOrdered, Flame, Target, UserPlus, ArrowDown, ArrowUp, Zap, Plus, Check } from 'lucide-react';
 import type { EnrichedWeightEntry, Person, PersonStats, WeightUnit } from '../../types';
 import { PersonAvatar } from '../People/PersonAvatar';
 import { getPersonColor } from '../../constants/people';
 import { ageFromBirthDate, bmiBand, formatDelta, formatWeight, fromKg } from '../../utils/units';
 import { entriesForPerson, formatShortDate, shiftDate } from '../../utils/weights';
-import { TodayWeighInStrip } from './TodayWeighInStrip';
 
 interface DashboardOverviewProps {
   people: Person[];
@@ -19,21 +18,6 @@ interface DashboardOverviewProps {
   onWeighEveryone: () => void;
   onAddPerson: () => void;
 }
-
-const StatTile: React.FC<{ icon: React.ElementType; label: string; value: string; tone: string }> = ({
-  icon: Icon,
-  label,
-  value,
-  tone
-}) => (
-  <div className="glass-card p-4 rounded-2xl">
-    <div className={`w-8 h-8 rounded-xl border flex items-center justify-center mb-2 ${tone}`}>
-      <Icon className="w-4 h-4" />
-    </div>
-    <p className="text-xl font-black font-mono text-slate-900 leading-none">{value}</p>
-    <p className="text-[11px] text-slate-500 mt-1">{label}</p>
-  </div>
-);
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   people,
@@ -48,19 +32,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 }) => {
   if (people.length === 0) {
     return (
-      <div className="glass-panel p-10 rounded-3xl text-center space-y-4">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-violet-50 border border-violet-200 flex items-center justify-center">
-          <UserPlus className="w-6 h-6 text-violet-600" />
+      <div className="glass-panel p-6 rounded-2xl text-center space-y-3">
+        <div className="w-12 h-12 mx-auto rounded-xl bg-violet-50 border border-violet-200 flex items-center justify-center">
+          <UserPlus className="w-5 h-5 text-violet-600" />
         </div>
         <div>
-          <h2 className="text-lg font-black text-slate-900 font-display">No one is being tracked yet</h2>
+          <h2 className="text-base font-black text-slate-900 font-display">No one is being tracked yet</h2>
           <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
             Add everyone in the household — including kids and anyone without their own login — then log a weigh-in in two taps.
           </p>
         </div>
         <button
           onClick={onAddPerson}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-sm px-5 py-2.5 rounded-xl shadow-md shadow-violet-500/20 transition-all"
+          className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-xs px-4 py-2 rounded-xl shadow-sm transition-all"
         >
           <UserPlus className="w-4 h-4" />
           Add your first person
@@ -69,47 +53,47 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     );
   }
 
+  const pendingCount = stats.filter(s => !s.loggedToday).length;
   const goalCount = stats.filter(s => s.goalDeltaKg !== null && s.goalDeltaKg <= 0).length;
   const cutoff = shiftDate(today, -30);
 
   return (
-    <div className="space-y-6">
-      <TodayWeighInStrip
-        stats={stats}
-        unit={unit}
-        onWeighIn={onWeighIn}
-        onWeighEveryone={onWeighEveryone}
-      />
+    <div className="space-y-3">
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatTile
-          icon={Users}
-          label="People tracked"
-          value={String(people.length)}
-          tone="bg-violet-50 border-violet-200 text-violet-600"
-        />
-        <StatTile
-          icon={ListOrdered}
-          label="Weigh-ins logged"
-          value={String(entries.length)}
-          tone="bg-cyan-50 border-cyan-200 text-cyan-600"
-        />
-        <StatTile
-          icon={Flame}
-          label={streak === 1 ? 'Day everyone logged' : 'Days everyone logged'}
-          value={String(streak)}
-          tone="bg-amber-50 border-amber-200 text-amber-600"
-        />
-        <StatTile
-          icon={Target}
-          label="At or under goal"
-          value={`${goalCount}/${stats.filter(s => s.person.goalWeightKg).length || 0}`}
-          tone="bg-emerald-50 border-emerald-200 text-emerald-600"
-        />
+      {/* Top Banner: Household Summary & Quick Weigh-Everyone Action */}
+      <div className="glass-panel p-3 rounded-2xl flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-2 sm:gap-3 text-xs font-semibold text-slate-700 flex-wrap">
+          <span className="flex items-center gap-1.5 bg-violet-50 text-violet-700 px-2.5 py-1 rounded-xl border border-violet-200">
+            <Users className="w-3.5 h-3.5" />
+            {people.length} {people.length === 1 ? 'person' : 'people'}
+          </span>
+          <span className="flex items-center gap-1.5 bg-cyan-50 text-cyan-700 px-2.5 py-1 rounded-xl border border-cyan-200">
+            <ListOrdered className="w-3.5 h-3.5" />
+            {entries.length} logged
+          </span>
+          <span className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-xl border border-amber-200">
+            <Flame className="w-3.5 h-3.5" />
+            {streak}d streak
+          </span>
+          <span className="flex items-center gap-1.5 bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-xl border border-emerald-200">
+            <Target className="w-3.5 h-3.5" />
+            {goalCount}/{stats.filter(s => s.person.goalWeightKg).length} at goal
+          </span>
+        </div>
+
+        {pendingCount >= 2 && (
+          <button
+            onClick={onWeighEveryone}
+            className="flex items-center gap-1.5 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-xs px-3.5 py-1.5 rounded-xl shadow-sm transition-all whitespace-nowrap ml-auto active:scale-95"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            Weigh everyone ({pendingCount} left)
+          </button>
+        )}
       </div>
 
       {/* Per-person summary cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {stats.map((s) => {
           const color = getPersonColor(s.person.color);
           const age = ageFromBirthDate(s.person.birthDate);
@@ -118,91 +102,103 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             .map(e => ({ date: formatShortDate(e.date), value: fromKg(e.weightKg, unit) }));
 
           return (
-            // min-w-0: grid items default to min-width:auto, which lets the
-            // chart's measured width push the column past the viewport.
-            <div key={s.person.id} className="glass-panel p-5 rounded-3xl space-y-4 min-w-0">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <PersonAvatar person={s.person} size="lg" />
-                  <div>
-                    <h3 className="text-base font-black text-slate-900 font-display leading-tight">{s.person.name}</h3>
-                    <p className="text-[11px] text-slate-500">
-                      {s.entryCount} weigh-in{s.entryCount === 1 ? '' : 's'}
-                      {s.daysSinceLast !== null && ` · last ${s.daysSinceLast === 0 ? 'today' : `${s.daysSinceLast}d ago`}`}
+            <div key={s.person.id} className="glass-panel p-3.5 sm:p-4 rounded-2xl space-y-3 min-w-0">
+              
+              {/* Card Header: Avatar, Name & Today's Weigh-in Action / Status */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <PersonAvatar person={s.person} size="md" />
+                  <div className="min-w-0">
+                    <h3 className="text-base font-bold text-slate-900 font-display leading-tight truncate">{s.person.name}</h3>
+                    <p className="text-xs text-slate-500 truncate">
+                      {s.daysSinceLast === null
+                        ? 'No weigh-ins yet'
+                        : s.daysSinceLast === 0
+                          ? 'Logged today'
+                          : `Last ${s.daysSinceLast === 1 ? 'yesterday' : `${s.daysSinceLast}d ago`}`}
                     </p>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-2xl font-black font-mono text-slate-900 leading-none">
-                    {s.latest ? formatWeight(s.latest.weightKg, unit, false) : '—'}
-                  </p>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{unit}</p>
+
+                <div className="text-right shrink-0">
+                  {s.loggedToday && s.latest ? (
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-5 h-5 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center">
+                        <Check className="w-3 h-3 text-emerald-700" />
+                      </span>
+                      <div>
+                        <p className="text-xl sm:text-2xl font-black font-mono text-slate-900 leading-none">
+                          {formatWeight(s.latest.weightKg, unit, false)}
+                          <span className="text-xs font-bold text-slate-400 ml-1">{unit}</span>
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => onWeighIn(s.person.id)}
+                      className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white font-bold text-xs px-3.5 py-2 rounded-xl shadow-sm active:scale-95 transition-all"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Weigh In
+                    </button>
+                  )}
                 </div>
               </div>
 
+              {/* 3-Column Key Stats: 7d, 30d, BMI */}
               <div className="grid grid-cols-3 gap-2 text-center">
                 {([
                   ['7 days', s.change7dKg],
                   ['30 days', s.change30dKg]
                 ] as const).map(([label, value]) => (
-                  <div key={label} className="inset-well rounded-xl py-2">
-                    <p className={`text-sm font-bold font-mono flex items-center justify-center gap-0.5 ${
+                  <div key={label} className="inset-well rounded-xl py-1.5 px-2">
+                    <p className={`text-xs sm:text-sm font-bold font-mono flex items-center justify-center gap-0.5 ${
                       value === null ? 'text-slate-400' : value < 0 ? 'text-emerald-600' : value > 0 ? 'text-amber-600' : 'text-slate-600'
                     }`}>
-                      {value !== null && value < 0 && <ArrowDown className="w-3 h-3" />}
-                      {value !== null && value > 0 && <ArrowUp className="w-3 h-3" />}
+                      {value !== null && value < 0 && <ArrowDown className="w-3 h-3 shrink-0" />}
+                      {value !== null && value > 0 && <ArrowUp className="w-3 h-3 shrink-0" />}
                       {formatDelta(value, unit).replace(/^[+−]/, '')}
                     </p>
-                    <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
+                    <p className="text-xs text-slate-500">{label}</p>
                   </div>
                 ))}
-                <div className="inset-well rounded-xl py-2">
-                  <p className="text-sm font-bold font-mono text-slate-700">{s.bmi ?? '—'}</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5">BMI</p>
+                <div className="inset-well rounded-xl py-1.5 px-2">
+                  <p className="text-xs sm:text-sm font-bold font-mono text-slate-700">{s.bmi ?? '—'}</p>
+                  <p className="text-xs text-slate-500">BMI</p>
                 </div>
               </div>
 
+              {/* BMI Category & Goal Text */}
               {s.bmi !== null && (
-                age !== null && age < 20 ? (
-                  <p className="text-[11px] text-slate-400">
-                    BMI categories are for adults — not a clinical measure under 20.
-                  </p>
-                ) : (
-                  <span className={`inline-block text-[11px] font-bold px-2.5 py-1 rounded-full border ${bmiBand(s.bmi).chip}`}>
+                <div className="flex items-center justify-between text-xs gap-2 flex-wrap">
+                  <span className={`inline-block text-xs font-bold px-2.5 py-0.5 rounded-full border ${bmiBand(s.bmi).chip}`}>
                     {bmiBand(s.bmi).label}
                   </span>
-                )
+                  {s.person.goalWeightKg && s.goalDeltaKg !== null && (
+                    <span className={s.goalDeltaKg <= 0 ? 'text-emerald-600 font-bold' : 'text-slate-600 font-medium'}>
+                      Goal {formatWeight(s.person.goalWeightKg, unit)} ({s.goalDeltaKg <= 0 ? 'Reached 🎉' : `${formatDelta(s.goalDeltaKg, unit).replace('+', '')} left`})
+                    </span>
+                  )}
+                </div>
               )}
 
               {s.person.goalWeightKg && s.goalDeltaKg !== null && (
-                <div className="space-y-1.5">
-                  <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-500">
-                      Goal {formatWeight(s.person.goalWeightKg, unit)}
-                    </span>
-                    <span className={s.goalDeltaKg <= 0 ? 'text-emerald-600 font-bold' : 'text-slate-600 font-semibold'}>
-                      {s.goalDeltaKg <= 0
-                        ? 'Goal reached 🎉'
-                        : `${formatDelta(s.goalDeltaKg, unit).replace('+', '')} to go`}
-                    </span>
-                  </div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className={`h-full ${color.bar} rounded-full transition-all`}
-                      style={{ width: `${s.goalProgressPct ?? 0}%` }}
-                    />
-                  </div>
+                <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full ${color.bar} rounded-full transition-all`}
+                    style={{ width: `${s.goalProgressPct ?? 0}%` }}
+                  />
                 </div>
               )}
 
               {series.length > 1 && (
-                <div className="h-24 w-full min-w-0 overflow-hidden">
+                <div className="h-16 w-full min-w-0 overflow-hidden pt-1">
                   <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={series} margin={{ top: 4, right: 4, bottom: 0, left: 4 }}>
+                    <LineChart data={series} margin={{ top: 2, right: 2, bottom: 0, left: 2 }}>
                       <XAxis dataKey="date" hide />
                       <YAxis domain={['dataMin - 1', 'dataMax + 1']} hide />
                       <Tooltip
-                        contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '12px', color: '#0f172a', fontSize: 12, boxShadow: '0 4px 16px -4px rgba(15,23,42,0.15)' }}
+                        contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#0f172a', fontSize: 12, boxShadow: '0 2px 8px rgba(15,23,42,0.1)' }}
                         formatter={(v: any) => [`${Number(v).toFixed(1)} ${unit}`, s.person.name]}
                       />
                       <Line
@@ -215,7 +211,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                       />
                     </LineChart>
                   </ResponsiveContainer>
-                  <p className="text-[10px] text-slate-400 text-center">Last 30 days</p>
                 </div>
               )}
             </div>

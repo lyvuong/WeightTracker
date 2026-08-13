@@ -251,7 +251,7 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
             <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
               <XAxis dataKey="date" {...AXIS} minTickGap={24} />
-              <YAxis domain={yDomain} {...AXIS} width={52} />
+              <YAxis domain={yDomain} {...AXIS} width={38} />
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
                 formatter={(value: any, name: any) => [`${Number(value).toFixed(1)} ${unit}`, String(name)]}
@@ -314,7 +314,7 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
               <BarChart data={weeklyData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis dataKey="week" {...AXIS} minTickGap={16} />
-                <YAxis {...AXIS} width={52} />
+                <YAxis {...AXIS} width={38} />
                 <Tooltip
                   contentStyle={TOOLTIP_STYLE}
                   formatter={(value: any) => [`${Number(value) > 0 ? '+' : ''}${Number(value).toFixed(1)} ${unit}`, 'Change']}
@@ -340,7 +340,7 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
               <LineChart data={bodyFatData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                 <XAxis dataKey="date" {...AXIS} minTickGap={24} />
-                <YAxis domain={['dataMin - 2', 'dataMax + 2']} {...AXIS} width={52} />
+                <YAxis domain={['dataMin - 2', 'dataMax + 2']} {...AXIS} width={38} />
                 <Tooltip contentStyle={TOOLTIP_STYLE} formatter={(v: any, n: any) => [`${v}%`, String(n)]} />
                 {visible.map(p => (
                   <Line

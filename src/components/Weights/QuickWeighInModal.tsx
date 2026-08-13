@@ -89,7 +89,7 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
     <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
       <form
         onSubmit={handleSubmit}
-        className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border border-slate-200 shadow-2xl bg-white p-6 space-y-5"
+        className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border border-slate-200 shadow-2xl bg-white p-5 sm:p-6 space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
