@@ -86,23 +86,23 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-start justify-center p-2 sm:p-4 overflow-y-auto pt-2 sm:pt-10">
       <form
         onSubmit={handleSubmit}
-        className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border border-slate-200 shadow-2xl bg-white p-5 sm:p-6 space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto"
+        className="w-full sm:max-w-md rounded-2xl border border-slate-200 shadow-2xl bg-white p-4 sm:p-5 space-y-3 sm:space-y-4 max-h-[85vh] overflow-y-auto my-0"
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <PersonAvatar person={person} size="md" />
+          <div className="flex items-center gap-2.5">
+            <PersonAvatar person={person} size="sm" />
             <div>
-              <h2 className="text-lg font-black text-slate-900 font-display leading-tight">{person.name}</h2>
+              <h2 className="text-base sm:text-lg font-black text-slate-900 font-display leading-tight">{person.name}</h2>
               <p className="text-[11px] text-slate-500">
                 {existingEntry ? 'Editing weigh-in' : 'New weigh-in'}
                 {queue && ` · ${queue.index + 1} of ${queue.total}`}
               </p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="p-2 text-slate-400 hover:text-slate-700" aria-label="Close">
+          <button type="button" onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -118,9 +118,9 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
           </div>
         )}
 
-        {/* The number is the whole point — give it the whole panel. */}
-        <div className="inset-well rounded-2xl p-5 text-center space-y-1">
-          <div className="flex items-baseline justify-center gap-2">
+        {/* Compact weight number input */}
+        <div className="inset-well rounded-xl p-3 text-center space-y-0.5">
+          <div className="flex items-baseline justify-center gap-1.5">
             <input
               ref={inputRef}
               type="number"
@@ -130,23 +130,23 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
               placeholder="0.0"
               value={value}
               onChange={(e) => setValue(e.target.value)}
-              className="w-40 bg-transparent text-center text-5xl font-black font-mono text-slate-900 placeholder:text-slate-300 focus:outline-none"
+              className="w-36 bg-transparent text-center text-4xl sm:text-5xl font-black font-mono text-slate-900 placeholder:text-slate-300 focus:outline-none"
             />
-            <span className="text-2xl font-bold text-violet-600">{unit}</span>
+            <span className="text-xl font-bold text-violet-600">{unit}</span>
           </div>
           {lastWeightKg !== null && (
-            <p className="text-[11px] text-slate-500">
+            <p className="text-xs text-slate-500">
               Last recorded: {fromKg(lastWeightKg, unit).toFixed(1)} {unit}
             </p>
           )}
         </div>
 
-        {/* Date & time, collapsed to "now" by default */}
-        <div className="space-y-2">
+        {/* Date & time, collapsed by default */}
+        <div className="space-y-1.5">
           <button
             type="button"
             onClick={() => setShowWhen(!showWhen)}
-            className="w-full flex items-center justify-between text-xs font-semibold text-slate-500 hover:text-slate-800"
+            className="w-full flex items-center justify-between text-xs font-semibold text-slate-500 hover:text-slate-800 py-1"
           >
             <span>{showWhen ? 'Date & time' : `Logging for ${date === todayLocal() ? 'today' : date} at ${time}`}</span>
             {showWhen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -157,24 +157,24 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
                 type="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="glass-input text-sm px-3 py-2 rounded-xl"
+                className="glass-input text-xs px-3 py-2 rounded-xl"
               />
               <input
                 type="time"
                 value={time}
                 onChange={(e) => setTime(e.target.value)}
-                className="glass-input text-sm px-3 py-2 rounded-xl"
+                className="glass-input text-xs px-3 py-2 rounded-xl"
               />
             </div>
           )}
         </div>
 
         {/* Optional extras */}
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <button
             type="button"
             onClick={() => setShowMore(!showMore)}
-            className="w-full flex items-center justify-between text-xs font-semibold text-slate-500 hover:text-slate-800"
+            className="w-full flex items-center justify-between text-xs font-semibold text-slate-500 hover:text-slate-800 py-1"
           >
             <span>Body fat &amp; notes</span>
             {showMore ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -190,23 +190,24 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
                 placeholder="Body fat %"
                 value={bodyFat}
                 onChange={(e) => setBodyFat(e.target.value)}
-                className="w-full glass-input text-sm px-3 py-2 rounded-xl"
+                className="w-full glass-input text-xs px-3 py-2 rounded-xl"
               />
               <input
                 type="text"
                 placeholder="Notes (optional)"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full glass-input text-sm px-3 py-2 rounded-xl"
+                className="w-full glass-input text-xs px-3 py-2 rounded-xl"
               />
             </div>
           )}
         </div>
 
+        {/* Primary Save Action Button */}
         <button
           type="submit"
           disabled={!isValid}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-sm py-3.5 rounded-2xl shadow-md shadow-violet-500/20 active:scale-[0.99] transition-all disabled:opacity-40"
+          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white font-bold text-xs sm:text-sm py-3 rounded-xl shadow-md shadow-violet-500/20 active:scale-[0.99] transition-all disabled:opacity-40 shrink-0"
         >
           <Check className="w-4 h-4" />
           {queue && queue.index < queue.total - 1 ? 'Save & next person' : 'Save weigh-in'}

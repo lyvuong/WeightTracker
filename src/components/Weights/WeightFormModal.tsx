@@ -80,10 +80,10 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
   const label = 'text-[11px] font-bold text-slate-500 block mb-1.5 uppercase tracking-wider';
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-start justify-center p-2 sm:p-4 overflow-y-auto pt-2 sm:pt-10">
       <form
         onSubmit={handleSubmit}
-        className="w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl border border-slate-200 shadow-2xl bg-white p-5 sm:p-6 space-y-4 sm:space-y-5 max-h-[90vh] overflow-y-auto"
+        className="w-full sm:max-w-lg rounded-2xl border border-slate-200 shadow-2xl bg-white p-4 sm:p-5 space-y-4 max-h-[85vh] overflow-y-auto my-0"
       >
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-black text-slate-900 font-display">
