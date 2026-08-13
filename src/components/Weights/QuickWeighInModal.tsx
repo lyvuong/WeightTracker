@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 import type { Person, WeightDraft, WeightEntry, WeightUnit } from '../../types';
 import { PersonAvatar } from '../People/PersonAvatar';
 import { fromKg } from '../../utils/units';
@@ -32,8 +32,6 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
   const [time, setTime] = useState(nowTimeLocal());
   const [bodyFat, setBodyFat] = useState('');
   const [notes, setNotes] = useState('');
-  const [showWhen, setShowWhen] = useState(false);
-  const [showMore, setShowMore] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Re-hydrate whenever the modal opens or the queue advances to a new person.
@@ -58,8 +56,6 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
       setBodyFat('');
       setNotes('');
     }
-    setShowWhen(false);
-    setShowMore(false);
     const t = setTimeout(() => inputRef.current?.focus(), 60);
     return () => clearTimeout(t);
   }, [isOpen, person, existingEntry, unit]);
@@ -141,66 +137,26 @@ export const QuickWeighInModal: React.FC<QuickWeighInModalProps> = ({
           )}
         </div>
 
-        {/* Date & time, collapsed by default */}
-        <div className="space-y-1.5">
-          <button
-            type="button"
-            onClick={() => setShowWhen(!showWhen)}
-            className="w-full flex items-center justify-between text-xs font-semibold text-slate-500 hover:text-slate-800 py-1"
-          >
-            <span>{showWhen ? 'Date & time' : `Logging for ${date === todayLocal() ? 'today' : date} at ${time}`}</span>
-            {showWhen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-          {showWhen && (
-            <div className="grid grid-cols-2 gap-2">
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="glass-input text-xs px-3 py-2 rounded-xl"
-              />
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="glass-input text-xs px-3 py-2 rounded-xl"
-              />
-            </div>
-          )}
-        </div>
-
-        {/* Optional extras */}
-        <div className="space-y-1.5">
-          <button
-            type="button"
-            onClick={() => setShowMore(!showMore)}
-            className="w-full flex items-center justify-between text-xs font-semibold text-slate-500 hover:text-slate-800 py-1"
-          >
-            <span>Body fat &amp; notes</span>
-            {showMore ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
-          {showMore && (
-            <div className="space-y-2">
-              <input
-                type="number"
-                inputMode="decimal"
-                step="0.1"
-                min="0"
-                max="100"
-                placeholder="Body fat %"
-                value={bodyFat}
-                onChange={(e) => setBodyFat(e.target.value)}
-                className="w-full glass-input text-xs px-3 py-2 rounded-xl"
-              />
-              <input
-                type="text"
-                placeholder="Notes (optional)"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full glass-input text-xs px-3 py-2 rounded-xl"
-              />
-            </div>
-          )}
+        {/* Body fat & notes inputs - open by default */}
+        <div className="space-y-2">
+          <input
+            type="number"
+            inputMode="decimal"
+            step="0.1"
+            min="0"
+            max="100"
+            placeholder="Body fat % (optional)"
+            value={bodyFat}
+            onChange={(e) => setBodyFat(e.target.value)}
+            className="w-full glass-input text-xs px-3 py-2.5 rounded-xl font-mono"
+          />
+          <input
+            type="text"
+            placeholder="Notes (optional)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full glass-input text-xs px-3 py-2.5 rounded-xl"
+          />
         </div>
 
         {/* Primary Save Action Button */}
