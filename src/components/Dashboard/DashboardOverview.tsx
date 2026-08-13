@@ -14,6 +14,7 @@ interface DashboardOverviewProps {
   unit: WeightUnit;
   streak: number;
   today: string;
+  lastLocalPersonId?: string;
   onWeighIn: (personId: string) => void;
   onWeighEveryone: () => void;
   onAddPerson: () => void;
@@ -26,6 +27,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   unit,
   streak,
   today,
+  lastLocalPersonId,
   onWeighIn,
   onWeighEveryone,
   onAddPerson
@@ -53,9 +55,13 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     );
   }
 
-  // Sort stats so the person who did the most recent weigh-in is on top for easy access
+  // Sort stats so the last person who weighed in ON THIS DEVICE is on top
   const sortedStats = useMemo(() => {
     return [...stats].sort((a, b) => {
+      if (lastLocalPersonId) {
+        if (a.person.id === lastLocalPersonId) return -1;
+        if (b.person.id === lastLocalPersonId) return 1;
+      }
       const keyA = a.latest ? entryKey(a.latest) : '';
       const keyB = b.latest ? entryKey(b.latest) : '';
       if (keyA !== keyB) {
@@ -63,7 +69,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       }
       return (a.person.sortOrder ?? 0) - (b.person.sortOrder ?? 0);
     });
-  }, [stats]);
+  }, [stats, lastLocalPersonId]);
 
   const pendingCount = stats.filter(s => !s.loggedToday).length;
   const goalCount = stats.filter(s => s.goalDeltaKg !== null && s.goalDeltaKg <= 0).length;

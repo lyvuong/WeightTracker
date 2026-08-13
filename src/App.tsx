@@ -38,6 +38,7 @@ import {
   exportDataAsJSON,
   exportWeightsAsCSV,
   getStoredFamilyCode,
+  getStoredLastLocalPersonId,
   getStoredUnit,
   importJSONBackup,
   loadLocalPeople,
@@ -46,6 +47,7 @@ import {
   saveLocalPeople,
   saveLocalWeights,
   setStoredFamilyCode,
+  setStoredLastLocalPersonId,
   setStoredUnit,
   todayLocal
 } from './services/storage';
@@ -94,6 +96,7 @@ export const App: React.FC = () => {
   const [weights, setWeights] = useState<WeightEntry[]>(() => loadLocalWeights());
   const [unit, setUnitState] = useState<WeightUnit>(() => getStoredUnit());
   const [familyCode, setFamilyCodeState] = useState<string>(() => getStoredFamilyCode());
+  const [lastLocalPersonId, setLastLocalPersonId] = useState<string>(() => getStoredLastLocalPersonId());
   const [householdMembers, setHouseholdMembers] = useState<UserAuditInfo[]>([]);
 
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
@@ -324,11 +327,17 @@ export const App: React.FC = () => {
 
   const openNavbarWeighIn = () => {
     if (personStats.length === 0) return;
+    const lastLocalPerson = lastLocalPersonId && personStats.some(s => s.person.id === lastLocalPersonId)
+      ? lastLocalPersonId
+      : undefined;
     const firstPending = personStats.find(s => !s.loggedToday);
-    openQuickWeighIn((firstPending || personStats[0]).person.id);
+    openQuickWeighIn(lastLocalPerson || (firstPending || personStats[0]).person.id);
   };
 
   const persistWeight = (draft: WeightDraft): WeightEntry => {
+    setStoredLastLocalPersonId(draft.personId);
+    setLastLocalPersonId(draft.personId);
+
     const id = draft.id || `wt-${Date.now()}`;
     const existing = weights.find(w => w.id === id);
     const entry: WeightEntry = {
@@ -522,6 +531,7 @@ export const App: React.FC = () => {
             unit={unit}
             streak={streak}
             today={today}
+            lastLocalPersonId={lastLocalPersonId}
             onWeighIn={openQuickWeighIn}
             onWeighEveryone={openWeighEveryone}
             onAddPerson={() => {

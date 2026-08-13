@@ -6,10 +6,27 @@ const WEIGHTS_KEY = 'weighttrack_weights_v1';
 const UNIT_KEY = 'weighttrack_unit';
 const FIREBASE_CONFIG_KEY = 'weighttrack_firebase_config_custom';
 const FAMILY_CODE_KEY = 'weighttrack_family_code';
+const LAST_LOCAL_PERSON_KEY = 'weighttrack_last_local_person_id';
 
 // Demo rows only ever live in local storage — they are filtered out before
 // anything is seeded into a real household.
 export const DEMO_PREFIX = 'demo-';
+
+export const getStoredLastLocalPersonId = (): string => {
+  try {
+    return localStorage.getItem(LAST_LOCAL_PERSON_KEY) || '';
+  } catch {
+    return '';
+  }
+};
+
+export const setStoredLastLocalPersonId = (personId: string): void => {
+  try {
+    if (personId) {
+      localStorage.setItem(LAST_LOCAL_PERSON_KEY, personId);
+    }
+  } catch {}
+};
 
 /**
  * Local calendar date, NOT `toISOString().split('T')[0]`.
