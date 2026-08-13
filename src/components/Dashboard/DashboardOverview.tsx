@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip, XAxis } from 'recharts';
 import { Users, ListOrdered, Flame, Target, UserPlus, ArrowDown, ArrowUp, Zap, Plus, Check } from 'lucide-react';
 import type { EnrichedWeightEntry, Person, PersonStats, WeightUnit } from '../../types';
 import { PersonAvatar } from '../People/PersonAvatar';
 import { getPersonColor } from '../../constants/people';
 import { ageFromBirthDate, bmiBand, formatDelta, formatWeight, fromKg } from '../../utils/units';
-import { entriesForPerson, formatShortDate, shiftDate } from '../../utils/weights';
+import { entriesForPerson, entryKey, formatShortDate, shiftDate } from '../../utils/weights';
 
 interface DashboardOverviewProps {
   people: Person[];
@@ -53,6 +53,18 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     );
   }
 
+  // Sort stats so the person who did the most recent weigh-in is on top for easy access
+  const sortedStats = useMemo(() => {
+    return [...stats].sort((a, b) => {
+      const keyA = a.latest ? entryKey(a.latest) : '';
+      const keyB = b.latest ? entryKey(b.latest) : '';
+      if (keyA !== keyB) {
+        return keyB.localeCompare(keyA);
+      }
+      return (a.person.sortOrder ?? 0) - (b.person.sortOrder ?? 0);
+    });
+  }, [stats]);
+
   const pendingCount = stats.filter(s => !s.loggedToday).length;
   const goalCount = stats.filter(s => s.goalDeltaKg !== null && s.goalDeltaKg <= 0).length;
   const cutoff = shiftDate(today, -30);
@@ -92,9 +104,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         )}
       </div>
 
-      {/* Per-person summary cards */}
+      {/* Per-person summary cards — sorted with the most recent weigh-in user on top */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {stats.map((s) => {
+        {sortedStats.map((s) => {
           const color = getPersonColor(s.person.color);
           const age = ageFromBirthDate(s.person.birthDate);
           const series = entriesForPerson(entries, s.person.id)
