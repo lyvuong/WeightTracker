@@ -29,7 +29,10 @@ export const PeopleManager: React.FC<PeopleManagerProps> = ({
 
   // Household members who signed in but have no weight profile yet.
   const unprofiled = familyCode
-    ? householdMembers.filter(m => !people.some(p => p.linkedUid === m.uid))
+    ? householdMembers.filter(m => !people.some(p =>
+        p.linkedUid === m.uid ||
+        (p.name && m.displayName && p.name.trim().toLowerCase() === m.displayName.trim().toLowerCase())
+      ))
     : [];
 
   return (
