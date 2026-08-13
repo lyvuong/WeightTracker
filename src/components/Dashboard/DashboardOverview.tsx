@@ -4,7 +4,7 @@ import { Users, ListOrdered, Flame, Target, UserPlus, ArrowDown, ArrowUp, Zap, P
 import type { EnrichedWeightEntry, Person, PersonStats, WeightUnit } from '../../types';
 import { PersonAvatar } from '../People/PersonAvatar';
 import { getPersonColor } from '../../constants/people';
-import { ageFromBirthDate, bmiBand, formatDelta, formatWeight, fromKg } from '../../utils/units';
+import { bmiBand, formatDelta, formatWeight, fromKg } from '../../utils/units';
 import { entriesForPerson, entryKey, formatShortDate, shiftDate } from '../../utils/weights';
 
 interface DashboardOverviewProps {
@@ -114,7 +114,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {sortedStats.map((s) => {
           const color = getPersonColor(s.person.color);
-          const age = ageFromBirthDate(s.person.birthDate);
           const series = entriesForPerson(entries, s.person.id)
             .filter(e => e.date >= cutoff)
             .map(e => ({ date: formatShortDate(e.date), value: fromKg(e.weightKg, unit) }));

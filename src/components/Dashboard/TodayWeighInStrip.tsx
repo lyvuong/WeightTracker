@@ -61,7 +61,7 @@ export const TodayWeighInStrip: React.FC<TodayWeighInStripProps> = ({
               }`}
             >
               <div className="flex items-center justify-between mb-1">
-                <PersonAvatar person={s.person} size="xs" />
+                <PersonAvatar person={s.person} size="sm" />
                 {s.loggedToday ? (
                   <span className="w-5 h-5 rounded-full bg-violet-100 border border-violet-300 flex items-center justify-center shrink-0">
                     <Check className="w-3 h-3 text-violet-700" />
