@@ -114,6 +114,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {sortedStats.map((s) => {
           const color = getPersonColor(s.person.color);
+          const deltaLast = s.latest && s.previous ? s.latest.weightKg - s.previous.weightKg : null;
           const series = entriesForPerson(entries, s.person.id)
             .filter(e => e.date >= cutoff)
             .map(e => ({
@@ -145,30 +146,48 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 </div>
 
                 <div className="text-right shrink-0">
-                  {s.loggedToday && s.latest ? (
+                  {s.latest ? (
                     <div className="flex items-center gap-2">
                       <div className="text-right">
                         <div className="flex items-center gap-1.5 justify-end">
-                          <span className="w-4 h-4 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center">
-                            <Check className="w-2.5 h-2.5 text-emerald-700" />
-                          </span>
-                          <p className="text-xl sm:text-2xl font-black font-mono text-slate-900 leading-none">
+                          {s.loggedToday && (
+                            <span className="w-4 h-4 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center" title="Logged today">
+                              <Check className="w-2.5 h-2.5 text-emerald-700" />
+                            </span>
+                          )}
+                          <p className={`text-xl sm:text-2xl font-black font-mono leading-none ${s.loggedToday ? 'text-slate-900' : 'text-slate-600'}`}>
                             {formatWeight(s.latest.weightKg, unit, false)}
                             <span className="text-xs font-bold text-slate-400 ml-1">{unit}</span>
                           </p>
                         </div>
-                        {s.todayCount > 1 && s.todayDeltaKg !== null && (
+                        {deltaLast !== null && Math.abs(deltaLast) > 0.005 ? (
+                          <p className={`text-[11px] font-bold font-mono flex items-center justify-end gap-0.5 mt-0.5 ${
+                            deltaLast < 0 ? 'text-emerald-600' : 'text-amber-600'
+                          }`}>
+                            {deltaLast < 0 ? <ArrowDown className="w-3 h-3 shrink-0" /> : <ArrowUp className="w-3 h-3 shrink-0" />}
+                            <span>{formatDelta(deltaLast, unit)} vs last</span>
+                          </p>
+                        ) : s.todayCount > 1 && s.todayDeltaKg !== null ? (
                           <p className={`text-[10px] font-bold font-mono text-right mt-0.5 ${s.todayDeltaKg < 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
                             {s.todayCount}x today ({formatDelta(s.todayDeltaKg, unit)})
+                          </p>
+                        ) : (
+                          <p className="text-[10px] text-slate-400 font-medium text-right mt-0.5">
+                            {s.loggedToday ? 'Latest weight' : 'Previous weight'}
                           </p>
                         )}
                       </div>
                       <button
                         onClick={() => onWeighIn(s.person.id)}
-                        title="Log another weigh-in today"
-                        className="p-1.5 bg-slate-100 hover:bg-violet-50 text-slate-600 hover:text-violet-700 rounded-xl border border-slate-200 hover:border-violet-300 transition-all active:scale-95"
+                        title={s.loggedToday ? "Log another weigh-in today" : "Weigh in now"}
+                        className={`flex items-center gap-1 font-bold text-xs px-2.5 py-2 sm:px-3 sm:py-2 rounded-xl shadow-sm active:scale-95 transition-all ${
+                          s.loggedToday
+                            ? 'bg-slate-100 hover:bg-violet-50 text-slate-600 hover:text-violet-700 border border-slate-200 hover:border-violet-300'
+                            : 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-violet-500/20'
+                        }`}
                       >
                         <Plus className="w-4 h-4" />
+                        <span className="hidden sm:inline">{s.loggedToday ? 'Log' : 'Weigh In'}</span>
                       </button>
                     </div>
                   ) : (
@@ -183,8 +202,18 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 </div>
               </div>
 
-              {/* 3-Column Key Stats: 7d, 30d, BMI */}
-              <div className="grid grid-cols-3 gap-2 text-center">
+              {/* 4-Column Key Stats: vs Last, 7d, 30d, BMI */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 text-center">
+                <div className="inset-well rounded-xl py-1.5 px-2">
+                  <p className={`text-xs sm:text-sm font-bold font-mono flex items-center justify-center gap-0.5 ${
+                    deltaLast === null ? 'text-slate-400' : deltaLast < 0 ? 'text-emerald-600' : deltaLast > 0 ? 'text-amber-600' : 'text-slate-600'
+                  }`}>
+                    {deltaLast !== null && deltaLast < 0 && <ArrowDown className="w-3 h-3 shrink-0" />}
+                    {deltaLast !== null && deltaLast > 0 && <ArrowUp className="w-3 h-3 shrink-0" />}
+                    {deltaLast !== null ? formatDelta(deltaLast, unit).replace(/^[+−]/, '') : '—'}
+                  </p>
+                  <p className="text-xs text-slate-500">vs Last</p>
+                </div>
                 {([
                   ['7 days', s.change7dKg],
                   ['30 days', s.change30dKg]
@@ -195,7 +224,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     }`}>
                       {value !== null && value < 0 && <ArrowDown className="w-3 h-3 shrink-0" />}
                       {value !== null && value > 0 && <ArrowUp className="w-3 h-3 shrink-0" />}
-                      {formatDelta(value, unit).replace(/^[+−]/, '')}
+                      {value !== null ? formatDelta(value, unit).replace(/^[+−]/, '') : '—'}
                     </p>
                     <p className="text-xs text-slate-500">{label}</p>
                   </div>
