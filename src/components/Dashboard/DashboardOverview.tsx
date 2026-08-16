@@ -32,6 +32,22 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onWeighEveryone,
   onAddPerson
 }) => {
+  // Sort stats so the last person who weighed in ON THIS DEVICE is on top
+  const sortedStats = useMemo(() => {
+    return [...stats].sort((a, b) => {
+      if (lastLocalPersonId) {
+        if (a.person.id === lastLocalPersonId) return -1;
+        if (b.person.id === lastLocalPersonId) return 1;
+      }
+      const keyA = a.latest ? entryKey(a.latest) : '';
+      const keyB = b.latest ? entryKey(b.latest) : '';
+      if (keyA !== keyB) {
+        return keyB.localeCompare(keyA);
+      }
+      return (a.person.sortOrder ?? 0) - (b.person.sortOrder ?? 0);
+    });
+  }, [stats, lastLocalPersonId]);
+
   if (people.length === 0) {
     return (
       <div className="glass-panel p-6 rounded-2xl text-center space-y-3">
@@ -54,22 +70,6 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       </div>
     );
   }
-
-  // Sort stats so the last person who weighed in ON THIS DEVICE is on top
-  const sortedStats = useMemo(() => {
-    return [...stats].sort((a, b) => {
-      if (lastLocalPersonId) {
-        if (a.person.id === lastLocalPersonId) return -1;
-        if (b.person.id === lastLocalPersonId) return 1;
-      }
-      const keyA = a.latest ? entryKey(a.latest) : '';
-      const keyB = b.latest ? entryKey(b.latest) : '';
-      if (keyA !== keyB) {
-        return keyB.localeCompare(keyA);
-      }
-      return (a.person.sortOrder ?? 0) - (b.person.sortOrder ?? 0);
-    });
-  }, [stats, lastLocalPersonId]);
 
   const pendingCount = stats.filter(s => !s.loggedToday).length;
   const goalCount = stats.filter(s => s.goalDeltaKg !== null && s.goalDeltaKg <= 0).length;
@@ -116,7 +116,12 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           const color = getPersonColor(s.person.color);
           const series = entriesForPerson(entries, s.person.id)
             .filter(e => e.date >= cutoff)
-            .map(e => ({ date: formatShortDate(e.date), value: fromKg(e.weightKg, unit) }));
+            .map(e => ({
+              date: formatShortDate(e.date),
+              time: e.time,
+              fullLabel: `${formatShortDate(e.date)}${e.time ? ` ${e.time}` : ''}`,
+              value: fromKg(e.weightKg, unit)
+            }));
 
           return (
             <div key={s.person.id} className="glass-panel p-3.5 sm:p-4 rounded-2xl space-y-3 min-w-0">
@@ -131,7 +136,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                       {s.daysSinceLast === null
                         ? 'No weigh-ins yet'
                         : s.daysSinceLast === 0
-                          ? 'Logged today'
+                          ? s.todayCount > 1
+                            ? `${s.todayCount} logs today · ${formatDelta(s.todayDeltaKg || 0, unit)} today`
+                            : 'Logged today'
                           : `Last ${s.daysSinceLast === 1 ? 'yesterday' : `${s.daysSinceLast}d ago`}`}
                     </p>
                   </div>
@@ -139,16 +146,30 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
                 <div className="text-right shrink-0">
                   {s.loggedToday && s.latest ? (
-                    <div className="flex items-center gap-1.5">
-                      <span className="w-5 h-5 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center">
-                        <Check className="w-3 h-3 text-emerald-700" />
-                      </span>
-                      <div>
-                        <p className="text-xl sm:text-2xl font-black font-mono text-slate-900 leading-none">
-                          {formatWeight(s.latest.weightKg, unit, false)}
-                          <span className="text-xs font-bold text-slate-400 ml-1">{unit}</span>
-                        </p>
+                    <div className="flex items-center gap-2">
+                      <div className="text-right">
+                        <div className="flex items-center gap-1.5 justify-end">
+                          <span className="w-4 h-4 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-emerald-700" />
+                          </span>
+                          <p className="text-xl sm:text-2xl font-black font-mono text-slate-900 leading-none">
+                            {formatWeight(s.latest.weightKg, unit, false)}
+                            <span className="text-xs font-bold text-slate-400 ml-1">{unit}</span>
+                          </p>
+                        </div>
+                        {s.todayCount > 1 && s.todayDeltaKg !== null && (
+                          <p className={`text-[10px] font-bold font-mono text-right mt-0.5 ${s.todayDeltaKg < 0 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                            {s.todayCount}x today ({formatDelta(s.todayDeltaKg, unit)})
+                          </p>
+                        )}
                       </div>
+                      <button
+                        onClick={() => onWeighIn(s.person.id)}
+                        title="Log another weigh-in today"
+                        className="p-1.5 bg-slate-100 hover:bg-violet-50 text-slate-600 hover:text-violet-700 rounded-xl border border-slate-200 hover:border-violet-300 transition-all active:scale-95"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
                     </div>
                   ) : (
                     <button
@@ -217,6 +238,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                       <Tooltip
                         contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '8px', color: '#0f172a', fontSize: 12, boxShadow: '0 2px 8px rgba(15,23,42,0.1)' }}
                         formatter={(v: any) => [`${Number(v).toFixed(1)} ${unit}`, s.person.name]}
+                        labelFormatter={(_label, payload) => payload?.[0]?.payload?.fullLabel || _label}
                       />
                       <Line
                         type="monotone"

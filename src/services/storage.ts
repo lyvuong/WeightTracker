@@ -110,7 +110,29 @@ const buildDemoSeries = (
 
 export const INITIAL_WEIGHTS: WeightEntry[] = [
   ...buildDemoSeries('p1', 82.4, 79.1, '07:10', 0),
-  ...buildDemoSeries('p2', 63.2, 61.5, '07:35', 5)
+  {
+    id: `${DEMO_PREFIX}p1-evening-today`,
+    personId: `${DEMO_PREFIX}p1`,
+    date: daysAgo(0),
+    time: '20:15',
+    weightKg: 79.5,
+    notes: '🌙 Evening weigh-in',
+    enteredUnit: 'kg',
+    enteredValue: 79.5,
+    createdAt: new Date().toISOString()
+  },
+  ...buildDemoSeries('p2', 63.2, 61.5, '07:35', 5),
+  {
+    id: `${DEMO_PREFIX}p2-evening-yesterday`,
+    personId: `${DEMO_PREFIX}p2`,
+    date: daysAgo(1),
+    time: '19:40',
+    weightKg: 61.8,
+    notes: '🌙 Evening · after dinner',
+    enteredUnit: 'kg',
+    enteredValue: 61.8,
+    createdAt: new Date().toISOString()
+  }
 ];
 
 // ==========================================

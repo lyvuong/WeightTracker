@@ -3,7 +3,7 @@ import { Download, Pencil, ArrowDown, ArrowUp, ListOrdered, Plus } from 'lucide-
 import type { EnrichedWeightEntry, Person, TrendRange, WeightUnit } from '../../types';
 import { PersonAvatar } from '../People/PersonAvatar';
 import { formatDelta, formatWeight } from '../../utils/units';
-import { formatLongDate, shiftDate } from '../../utils/weights';
+import { formatDisplayTime, formatLongDate, shiftDate } from '../../utils/weights';
 
 interface WeightHistoryProps {
   entries: EnrichedWeightEntry[];
@@ -124,64 +124,80 @@ export const WeightHistory: React.FC<WeightHistoryProps> = ({
         </div>
       ) : (
         <div className="space-y-4">
-          {grouped.map(([date, dayEntries]) => (
-            <section key={date} className="glass-panel rounded-3xl overflow-hidden">
-              <header className="px-5 py-3 bg-slate-50 border-b border-slate-200">
-                <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                  {formatLongDate(date)}
-                </h2>
-              </header>
+          {grouped.map(([date, dayEntries]) => {
+            const weightsInDay = dayEntries.map(e => e.weightKg);
+            const minKg = Math.min(...weightsInDay);
+            const maxKg = Math.max(...weightsInDay);
+            const isMultiInDay = dayEntries.length > 1;
 
-              <ul className="divide-y divide-slate-100">
-                {dayEntries.map((e) => (
-                  <li key={e.id}>
-                    <button
-                      onClick={() => onEditEntry(e)}
-                      className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-slate-50 transition-colors"
-                    >
-                      {e.person ? (
-                        <PersonAvatar person={e.person} size="sm" />
-                      ) : (
-                        <span className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 text-xs">?</span>
-                      )}
+            return (
+              <section key={date} className="glass-panel rounded-3xl overflow-hidden">
+                <header className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
+                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                    {formatLongDate(date)}
+                  </h2>
+                  {isMultiInDay && (
+                    <span className="text-[11px] font-semibold text-slate-500 bg-white border border-slate-200 px-2.5 py-0.5 rounded-full">
+                      {dayEntries.length} entries · Range: {formatWeight(minKg, unit)} – {formatWeight(maxKg, unit)}
+                    </span>
+                  )}
+                </header>
 
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-slate-900 truncate">
-                          {e.person?.name || 'Unknown person'}
-                          <span className="ml-2 text-[11px] font-normal text-slate-400 font-mono">{e.time}</span>
-                        </p>
-                        <p className="text-[11px] text-slate-500 truncate">
-                          {e.bmi !== null && <span className="mr-2">BMI {e.bmi}</span>}
-                          {e.bodyFatPct !== undefined && <span className="mr-2">{e.bodyFatPct}% fat</span>}
-                          {e.notes && <span className="italic">{e.notes}</span>}
-                          {!e.notes && e.lastEditedBy && (
-                            <span className="text-slate-400">edited by {e.lastEditedBy.displayName}</span>
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="text-right shrink-0">
-                        <p className="text-base font-black font-mono text-slate-900 leading-tight">
-                          {formatWeight(e.weightKg, unit, false)}
-                          <span className="text-[10px] font-bold text-slate-400 ml-1">{unit}</span>
-                        </p>
-                        {e.deltaFromPreviousKg !== null && Math.abs(e.deltaFromPreviousKg) > 0.005 && (
-                          <p className={`text-[11px] font-semibold flex items-center justify-end gap-0.5 ${
-                            e.deltaFromPreviousKg < 0 ? 'text-emerald-600' : 'text-amber-600'
-                          }`}>
-                            {e.deltaFromPreviousKg < 0 ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
-                            {formatDelta(e.deltaFromPreviousKg, unit).replace(/^[+−]/, '')}
-                          </p>
+                <ul className="divide-y divide-slate-100">
+                  {dayEntries.map((e) => (
+                    <li key={e.id}>
+                      <button
+                        onClick={() => onEditEntry(e)}
+                        className="w-full flex items-center gap-3 px-5 py-3.5 text-left hover:bg-slate-50 transition-colors"
+                      >
+                        {e.person ? (
+                          <PersonAvatar person={e.person} size="sm" />
+                        ) : (
+                          <span className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 text-xs">?</span>
                         )}
-                      </div>
 
-                      <Pencil className="w-4 h-4 text-slate-300 shrink-0" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-bold text-slate-900 truncate">
+                              {e.person?.name || 'Unknown person'}
+                            </p>
+                            <span className="text-[11px] font-bold text-violet-700 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-md font-mono">
+                              {e.time ? formatDisplayTime(e.time) : 'No time'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                            {e.bmi !== null && <span className="mr-2">BMI {e.bmi}</span>}
+                            {e.bodyFatPct !== undefined && <span className="mr-2">{e.bodyFatPct}% fat</span>}
+                            {e.notes && <span className="text-slate-700 font-medium">{e.notes}</span>}
+                            {!e.notes && e.lastEditedBy && (
+                              <span className="text-slate-400">edited by {e.lastEditedBy.displayName}</span>
+                            )}
+                          </p>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className="text-base font-black font-mono text-slate-900 leading-tight">
+                            {formatWeight(e.weightKg, unit, false)}
+                            <span className="text-[10px] font-bold text-slate-400 ml-1">{unit}</span>
+                          </p>
+                          {e.deltaFromPreviousKg !== null && Math.abs(e.deltaFromPreviousKg) > 0.005 && (
+                            <p className={`text-[11px] font-semibold flex items-center justify-end gap-0.5 ${
+                              e.deltaFromPreviousKg < 0 ? 'text-emerald-600' : 'text-amber-600'
+                            }`}>
+                              {e.deltaFromPreviousKg < 0 ? <ArrowDown className="w-3 h-3" /> : <ArrowUp className="w-3 h-3" />}
+                              {formatDelta(e.deltaFromPreviousKg, unit).replace(/^[+−]/, '')}
+                            </p>
+                          )}
+                        </div>
+
+                        <Pencil className="w-4 h-4 text-slate-300 shrink-0 ml-1" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
         </div>
       )}
     </div>

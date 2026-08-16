@@ -13,11 +13,11 @@ import {
   XAxis,
   YAxis
 } from 'recharts';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, Layers, Calendar } from 'lucide-react';
 import type { EnrichedWeightEntry, Person, TrendRange, WeightUnit } from '../../types';
 import { getPersonColor } from '../../constants/people';
 import { fromKg } from '../../utils/units';
-import { entryKey, formatShortDate, movingAverage, shiftDate } from '../../utils/weights';
+import { compareEntriesChronological, entryKey, formatDisplayTime, formatShortDate, movingAverage, shiftDate } from '../../utils/weights';
 
 interface WeightTrendsProps {
   entries: EnrichedWeightEntry[];
@@ -54,6 +54,7 @@ const weekStart = (date: string): string => {
 
 export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, unit, today }) => {
   const [range, setRange] = useState<TrendRange>(90);
+  const [plotMode, setPlotMode] = useState<'all' | 'dailyAvg'>('all');
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [showAverage, setShowAverage] = useState(true);
 
@@ -65,29 +66,66 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
   }, [entries, range, today]);
 
   /**
-   * Pivot to one row per date: { date, ts, [personId]: displayWeight }.
-   * When someone weighs in twice in a day the later entry wins.
+   * Generates chart rows based on selected plotMode:
+   * - 'all': Every weigh-in is its own point with its distinct timestamp
+   * - 'dailyAvg': Averages multiple weigh-ins on the same day into one point per date
    */
   const chartData = useMemo(() => {
-    const byDate = new Map<string, Record<string, any>>();
-    const latestPerDay = new Map<string, string>(); // `${personId}|${date}` -> entryKey
+    const chronological = [...inRange].sort(compareEntriesChronological);
 
-    [...inRange]
-      .sort((a, b) => entryKey(a).localeCompare(entryKey(b)))
-      .forEach((e) => {
-        const row = byDate.get(e.date) || { date: formatShortDate(e.date), rawDate: e.date };
-        const dayKey = `${e.personId}|${e.date}`;
-        const seen = latestPerDay.get(dayKey);
-        if (!seen || entryKey(e) >= seen) {
-          latestPerDay.set(dayKey, entryKey(e));
-          row[e.personId] = fromKg(e.weightKg, unit);
-        }
-        byDate.set(e.date, row);
+    if (plotMode === 'dailyAvg') {
+      // Group by calendar date and compute mean weight for each person
+      const byDate = new Map<string, { sums: Record<string, number>; counts: Record<string, number> }>();
+      chronological.forEach((e) => {
+        const item = byDate.get(e.date) || { sums: {}, counts: {} };
+        item.sums[e.personId] = (item.sums[e.personId] || 0) + fromKg(e.weightKg, unit);
+        item.counts[e.personId] = (item.counts[e.personId] || 0) + 1;
+        byDate.set(e.date, item);
       });
 
-    const rows = Array.from(byDate.entries())
-      .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([, row]) => row);
+      const rows = Array.from(byDate.entries())
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([date, data]) => {
+          const row: Record<string, any> = {
+            date: formatShortDate(date),
+            rawDate: date,
+            fullLabel: formatShortDate(date)
+          };
+          for (const pid of Object.keys(data.sums)) {
+            row[pid] = Math.round((data.sums[pid] / data.counts[pid]) * 10) / 10;
+          }
+          return row;
+        });
+
+      if (showAverage) {
+        people.forEach((p) => {
+          const series = rows.map(r => (r[p.id] === undefined ? null : (r[p.id] as number)));
+          const ma = movingAverage(series, 7);
+          rows.forEach((r, i) => {
+            if (ma[i] !== null) r[`${p.id}__ma`] = ma[i];
+          });
+        });
+      }
+
+      return rows;
+    }
+
+    // Default 'all': Pivot each chronological timestamp
+    // If multiple entries occur at the exact same minute across different people, merge into the same row
+    const byTs = new Map<string, Record<string, any>>();
+    chronological.forEach((e) => {
+      const tsKey = entryKey(e);
+      const row = byTs.get(tsKey) || {
+        date: formatShortDate(e.date),
+        rawDate: e.date,
+        time: e.time,
+        fullLabel: `${formatShortDate(e.date)}${e.time ? ` ${formatDisplayTime(e.time)}` : ''}`
+      };
+      row[e.personId] = fromKg(e.weightKg, unit);
+      byTs.set(tsKey, row);
+    });
+
+    const rows = Array.from(byTs.values());
 
     if (showAverage) {
       people.forEach((p) => {
@@ -100,7 +138,7 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
     }
 
     return rows;
-  }, [inRange, unit, showAverage, people]);
+  }, [inRange, unit, plotMode, showAverage, people]);
 
   const soloPerson = visible.length === 1 ? visible[0] : null;
 
@@ -205,12 +243,39 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
           </div>
         </div>
 
-        <div className="flex gap-2 overflow-x-auto scrollbar-none">
-          {RANGES.map(r => (
-            <button key={r.label} onClick={() => setRange(r.value)} className={chip(range === r.value)}>
-              {r.label}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex gap-2 overflow-x-auto scrollbar-none">
+            {RANGES.map(r => (
+              <button key={r.label} onClick={() => setRange(r.value)} className={chip(range === r.value)}>
+                {r.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button
+              onClick={() => setPlotMode('all')}
+              className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg transition-all ${
+                plotMode === 'all'
+                  ? 'bg-white text-violet-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Layers className="w-3 h-3" />
+              All weigh-ins
             </button>
-          ))}
+            <button
+              onClick={() => setPlotMode('dailyAvg')}
+              className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-lg transition-all ${
+                plotMode === 'dailyAvg'
+                  ? 'bg-white text-violet-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <Calendar className="w-3 h-3" />
+              Daily average
+            </button>
+          </div>
         </div>
 
         <div className="flex gap-2 overflow-x-auto scrollbar-none">
@@ -245,7 +310,14 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
 
       {/* Weight over time */}
       <section className="glass-panel p-5 rounded-3xl space-y-3">
-        <h2 className="text-sm font-bold text-slate-900">Weight over time ({unit})</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-900">
+            Weight over time ({unit}) {plotMode === 'all' ? '· Intraday' : '· Daily Avg'}
+          </h2>
+          <span className="text-[11px] text-slate-400">
+            {chartData.length} data points
+          </span>
+        </div>
         <div className="h-72 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData} margin={{ top: 8, right: 16, bottom: 0, left: -8 }}>
@@ -255,6 +327,7 @@ export const WeightTrends: React.FC<WeightTrendsProps> = ({ entries, people, uni
               <Tooltip
                 contentStyle={TOOLTIP_STYLE}
                 formatter={(value: any, name: any) => [`${Number(value).toFixed(1)} ${unit}`, String(name)]}
+                labelFormatter={(_label, payload) => payload?.[0]?.payload?.fullLabel || _label}
               />
               <Legend wrapperStyle={{ fontSize: 12, color: '#64748b' }} />
 

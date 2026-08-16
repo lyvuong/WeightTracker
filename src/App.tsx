@@ -109,6 +109,7 @@ export const App: React.FC = () => {
   const [isQuickOpen, setIsQuickOpen] = useState(false);
   const [quickQueue, setQuickQueue] = useState<string[]>([]);
   const [quickIndex, setQuickIndex] = useState(0);
+  const [quickEditingEntry, setQuickEditingEntry] = useState<WeightEntry | null>(null);
 
   const [isEntryModalOpen, setIsEntryModalOpen] = useState(false);
   const [editingEntry, setEditingEntry] = useState<WeightEntry | null>(null);
@@ -267,10 +268,10 @@ export const App: React.FC = () => {
   const quickPersonId = quickQueue[quickIndex] || '';
   const quickPerson = sortedPeople.find(p => p.id === quickPersonId) || null;
 
-  const quickExistingEntry = useMemo(() => {
-    if (!quickPersonId) return null;
+  const quickTodayEntries = useMemo(() => {
+    if (!quickPersonId) return [];
     const todays = weights.filter(w => w.personId === quickPersonId && w.date === today);
-    return todays.length ? sortEntriesDesc(todays)[0] : null;
+    return sortEntriesDesc(todays);
   }, [quickPersonId, weights, today]);
 
   const quickLastWeightKg = useMemo(() => {
@@ -310,9 +311,10 @@ export const App: React.FC = () => {
     return { success: true, message: `✅ Sharing with household ${cleanCode}.` };
   };
 
-  const openQuickWeighIn = (personId: string) => {
+  const openQuickWeighIn = (personId: string, entryToEdit?: WeightEntry | null) => {
     setQuickQueue([personId]);
     setQuickIndex(0);
+    setQuickEditingEntry(entryToEdit || null);
     setIsQuickOpen(true);
   };
 
@@ -322,6 +324,7 @@ export const App: React.FC = () => {
     if (queue.length === 0) return;
     setQuickQueue(queue);
     setQuickIndex(0);
+    setQuickEditingEntry(null);
     setIsQuickOpen(true);
   };
 
@@ -367,6 +370,7 @@ export const App: React.FC = () => {
 
   const handleQuickSave = (draft: WeightDraft) => {
     persistWeight(draft);
+    setQuickEditingEntry(null);
     if (quickIndex < quickQueue.length - 1) {
       setQuickIndex(quickIndex + 1);
     } else {
@@ -623,7 +627,8 @@ export const App: React.FC = () => {
         isOpen={isQuickOpen}
         person={quickPerson}
         unit={unit}
-        existingEntry={quickExistingEntry}
+        todayEntries={quickTodayEntries}
+        editingEntry={quickEditingEntry}
         lastWeightKg={quickLastWeightKg}
         queue={quickQueue.length > 1 ? { index: quickIndex, total: quickQueue.length } : null}
         onSave={handleQuickSave}
@@ -631,6 +636,7 @@ export const App: React.FC = () => {
           setIsQuickOpen(false);
           setQuickQueue([]);
           setQuickIndex(0);
+          setQuickEditingEntry(null);
         }}
       />
 

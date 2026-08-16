@@ -15,6 +15,14 @@ interface WeightFormModalProps {
   onClose: () => void;
 }
 
+const QUICK_TAGS = [
+  { label: '🌅 Morning', note: '🌅 Morning' },
+  { label: '☀️ Afternoon', note: '☀️ Afternoon' },
+  { label: '🌙 Evening', note: '🌙 Evening' },
+  { label: '🏋️ Post-Workout', note: '🏋️ Post-Workout' },
+  { label: '⚡ Fasted', note: '⚡ Fasted' }
+];
+
 export const WeightFormModal: React.FC<WeightFormModalProps> = ({
   isOpen,
   people,
@@ -42,7 +50,7 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
           : String(fromKg(initialEntry.weightKg, unit))
       );
       setDate(initialEntry.date);
-      setTime(initialEntry.time);
+      setTime(initialEntry.time || nowTimeLocal());
       setBodyFat(initialEntry.bodyFatPct !== undefined ? String(initialEntry.bodyFatPct) : '');
       setNotes(initialEntry.notes || '');
     } else {
@@ -56,6 +64,16 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
   }, [isOpen, initialEntry, defaultPersonId, people, unit]);
 
   if (!isOpen) return null;
+
+  const handleTagClick = (tagNote: string) => {
+    if (!notes) {
+      setNotes(tagNote);
+    } else if (notes.includes(tagNote)) {
+      setNotes(notes.replace(tagNote, '').trim().replace(/^,|,$/g, ''));
+    } else {
+      setNotes(`${notes} · ${tagNote}`);
+    }
+  };
 
   const parsed = Number(value);
   const isValid = personId && value.trim() !== '' && Number.isFinite(parsed) && parsed > 0;
@@ -146,7 +164,30 @@ export const WeightFormModal: React.FC<WeightFormModalProps> = ({
           </div>
           <div>
             <label className={label}>Time</label>
-            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={field} />
+            <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className={`${field} font-mono`} />
+          </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className={label}>Session Tag</label>
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+            {QUICK_TAGS.map((tag) => {
+              const isSelected = notes.includes(tag.note);
+              return (
+                <button
+                  key={tag.label}
+                  type="button"
+                  onClick={() => handleTagClick(tag.note)}
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-all whitespace-nowrap ${
+                    isSelected
+                      ? 'bg-violet-100 text-violet-800 border-violet-300 font-bold'
+                      : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+                  }`}
+                >
+                  {tag.label}
+                </button>
+              );
+            })}
           </div>
         </div>
 

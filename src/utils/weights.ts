@@ -10,9 +10,18 @@ import { calcBmi, fromKg } from './units';
 /** Sortable timestamp for an entry: "2026-08-06T07:15". */
 export const entryKey = (e: { date: string; time: string }): string => `${e.date}T${e.time || '00:00'}`;
 
+export const compareEntriesChronological = <T extends { date: string; time: string; createdAt?: string; id?: string }>(a: T, b: T): number => {
+  const keyA = entryKey(a);
+  const keyB = entryKey(b);
+  if (keyA !== keyB) return keyA.localeCompare(keyB);
+  const createdA = a.createdAt || a.id || '';
+  const createdB = b.createdAt || b.id || '';
+  return createdA.localeCompare(createdB);
+};
+
 /** Newest first, matching the way every list in the app reads. */
-export const sortEntriesDesc = <T extends { date: string; time: string }>(entries: T[]): T[] =>
-  [...entries].sort((a, b) => entryKey(b).localeCompare(entryKey(a)));
+export const sortEntriesDesc = <T extends { date: string; time: string; createdAt?: string; id?: string }>(entries: T[]): T[] =>
+  [...entries].sort((a, b) => compareEntriesChronological(b, a));
 
 export const sortPeople = (people: Person[]): Person[] =>
   [...people].sort((a, b) => {
@@ -63,6 +72,17 @@ export const formatLongDate = (date: string): string =>
     year: 'numeric'
   });
 
+export const formatDisplayTime = (time: string): string => {
+  if (!time) return '';
+  const [hStr, mStr] = time.split(':');
+  const h = parseInt(hStr, 10);
+  if (isNaN(h)) return time;
+  const m = mStr || '00';
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const displayH = h % 12 === 0 ? 12 : h % 12;
+  return `${displayH}:${m} ${ampm}`;
+};
+
 export const relativeDay = (date: string, today: string): string => {
   const diff = daysBetween(date, today);
   if (diff === 0) return 'Today';
@@ -87,7 +107,7 @@ export const enrichEntries = (
   const previousKg = new Map<string, number>();
 
   // Walk oldest-first so each entry can see the one before it.
-  const chronological = [...entries].sort((a, b) => entryKey(a).localeCompare(entryKey(b)));
+  const chronological = [...entries].sort(compareEntriesChronological);
   const enrichedChronological = chronological.map((entry) => {
     const person = byId.get(entry.personId) || null;
     const prev = previousKg.get(entry.personId);
@@ -108,7 +128,7 @@ export const enrichEntries = (
 export const entriesForPerson = (entries: WeightEntry[], personId: string): WeightEntry[] =>
   entries
     .filter(e => e.personId === personId)
-    .sort((a, b) => entryKey(a).localeCompare(entryKey(b)));
+    .sort(compareEntriesChronological);
 
 /** The entry closest to (but not after) `date`, used for the N-day deltas. */
 const entryOnOrBefore = (chronological: WeightEntry[], date: string): WeightEntry | null => {
@@ -128,6 +148,13 @@ export const buildPersonStats = (
   const chronological = entriesForPerson(entries, person.id);
   const latest = chronological.length ? chronological[chronological.length - 1] : null;
   const previous = chronological.length > 1 ? chronological[chronological.length - 2] : null;
+
+  const todayEntries = chronological.filter(e => e.date === today);
+  const todayCount = todayEntries.length;
+  const todayFirst = todayEntries.length ? todayEntries[0] : null;
+  const todayDeltaKg = todayEntries.length > 1 && todayFirst && latest && latest.date === today
+    ? latest.weightKg - todayFirst.weightKg
+    : null;
 
   const changeOver = (days: number): number | null => {
     if (!latest) return null;
@@ -155,7 +182,11 @@ export const buildPersonStats = (
     person,
     latest,
     previous,
-    loggedToday: !!latest && latest.date === today,
+    loggedToday: todayCount > 0,
+    todayEntries,
+    todayCount,
+    todayFirst,
+    todayDeltaKg,
     daysSinceLast: latest ? daysBetween(latest.date, today) : null,
     change7dKg: changeOver(7),
     change30dKg: changeOver(30),

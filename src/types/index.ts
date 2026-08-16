@@ -78,6 +78,10 @@ export interface PersonStats {
   latest: WeightEntry | null;
   previous: WeightEntry | null;
   loggedToday: boolean;
+  todayEntries: WeightEntry[];
+  todayCount: number;
+  todayFirst: WeightEntry | null;
+  todayDeltaKg: number | null; // latest - todayFirst for today
   daysSinceLast: number | null;
   change7dKg: number | null;
   change30dKg: number | null;
