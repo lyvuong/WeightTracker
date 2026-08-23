@@ -1,14 +1,20 @@
 // Bump CACHE_NAME whenever the app shell changes — Vite's hashed bundle names
 // mean an unchanged cache key will keep serving the previous build.
-const CACHE_NAME = 'weighttracker-v1';
+const CACHE_NAME = 'weighttracker-v2';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/manifest.json',
   '/favicon.svg',
+  '/favicon-32x32.png',
+  '/favicon-16x16.png',
   '/pwa-192x192.png',
   '/pwa-512x512.png',
-  '/apple-touch-icon.png'
+  '/apple-touch-icon.png',
+  '/apple-touch-icon-120x120.png',
+  '/apple-touch-icon-152x152.png',
+  '/apple-touch-icon-167x167.png',
+  '/apple-touch-icon-180x180.png'
 ];
 
 self.addEventListener('install', (event) => {

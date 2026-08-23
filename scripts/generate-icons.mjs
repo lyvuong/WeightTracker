@@ -66,16 +66,13 @@ const colorAt = (x, y) => {
   // Scale body, seen from above
   if (inRoundRect(x, y, 116, 116, 280, 280, 56)) return WHITE;
 
-  // Rounded app tile with a diagonal violet gradient
-  if (inRoundRect(x, y, 0, 0, 512, 512, 116)) {
-    const t = (x + y) / 1024;
-    return [
-      Math.round(VIOLET_500[0] + (VIOLET_700[0] - VIOLET_500[0]) * t),
-      Math.round(VIOLET_500[1] + (VIOLET_700[1] - VIOLET_500[1]) * t),
-      Math.round(VIOLET_500[2] + (VIOLET_700[2] - VIOLET_500[2]) * t)
-    ];
-  }
-  return null; // transparent outside the tile
+  // Solid app tile with a diagonal violet gradient (full bleed, no transparent corners for iOS/iPadOS)
+  const t = (x + y) / 1024;
+  return [
+    Math.round(VIOLET_500[0] + (VIOLET_700[0] - VIOLET_500[0]) * t),
+    Math.round(VIOLET_500[1] + (VIOLET_700[1] - VIOLET_500[1]) * t),
+    Math.round(VIOLET_500[2] + (VIOLET_700[2] - VIOLET_500[2]) * t)
+  ];
 };
 
 // --- PNG encoding --------------------------------------------------------
@@ -154,12 +151,19 @@ const render = (size) => {
   return encodePNG(size, pixels);
 };
 
-for (const [name, size] of [
+const ICONS_TO_GENERATE = [
   ['pwa-512x512.png', 512],
   ['pwa-192x192.png', 192],
   ['apple-touch-icon.png', 180],
-  ['favicon-32x32.png', 32]
-]) {
+  ['apple-touch-icon-180x180.png', 180],
+  ['apple-touch-icon-167x167.png', 167], // iPad Pro (Retina)
+  ['apple-touch-icon-152x152.png', 152], // iPad / iPad Air / iPad Mini (Retina)
+  ['apple-touch-icon-120x120.png', 120], // iPhone Retina
+  ['favicon-32x32.png', 32],
+  ['favicon-16x16.png', 16]
+];
+
+for (const [name, size] of ICONS_TO_GENERATE) {
   writeFileSync(join(OUT_DIR, name), render(size));
   console.log(`[icons] wrote public/${name} (${size}x${size})`);
 }

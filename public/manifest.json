@@ -4,34 +4,52 @@
   "description": "Progressive Web App for logging daily weigh-ins for everyone in the household, with BMI, goals and trend charts shared in real time.",
   "icons": [
     {
-      "src": "/pwa-192x192.png",
+      "src": "/favicon-32x32.png",
       "type": "image/png",
-      "sizes": "192x192",
+      "sizes": "32x32",
       "purpose": "any"
     },
     {
-      "src": "/pwa-192x192.png",
+      "src": "/apple-touch-icon-152x152.png",
       "type": "image/png",
-      "sizes": "192x192",
-      "purpose": "maskable"
-    },
-    {
-      "src": "/pwa-512x512.png",
-      "type": "image/png",
-      "sizes": "512x512",
+      "sizes": "152x152",
       "purpose": "any"
     },
     {
-      "src": "/pwa-512x512.png",
+      "src": "/apple-touch-icon-167x167.png",
       "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "maskable"
+      "sizes": "167x167",
+      "purpose": "any"
     },
     {
-      "src": "/apple-touch-icon.png",
+      "src": "/apple-touch-icon-180x180.png",
       "type": "image/png",
       "sizes": "180x180",
       "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     },
     {
       "src": "/favicon.svg",
